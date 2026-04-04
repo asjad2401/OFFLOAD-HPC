@@ -1,0 +1,33 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color colorAccent
+color colorBackground
+color colorPrimary
+color colorPrimaryDark
+color white
+drawable edittext_bg
+drawable progress_bar_bg
+drawable result_card_bg
+drawable spinner_bg
+id btnSubmitHashCrack
+id btnSubmitMatMul
+id editTargetHash
+id progressBar
+id scrollResult
+id spinnerAlgorithm
+id spinnerMatrixSize
+id spinnerMaxLength
+id tabLayout
+id toolbar
+id tvJobId
+id tvJobType
+id tvProgressText
+id tvResult
+id viewPager
+layout activity_main
+layout activity_progress
+layout fragment_hashcrack
+layout fragment_matmul
+string app_name
+style Theme.OffloadHPC

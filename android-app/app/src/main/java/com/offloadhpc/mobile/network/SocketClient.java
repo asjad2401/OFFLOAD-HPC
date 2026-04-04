@@ -28,7 +28,7 @@ public class SocketClient {
 
     // ── Configurable Broker address ──────────────────────────────────
     // Change these values to match your Broker's IP and port.
-    private String brokerHost = "192.168.1.100";
+    private String brokerHost = " 172.28.179.17";
     private int brokerPort = 9000;
 
     private Socket socket;
