@@ -28,7 +28,7 @@ public class SocketClient {
 
     // ── Configurable Broker address ──────────────────────────────────
     // Change these values to match your Broker's IP and port.
-    private String brokerHost = " 172.28.179.17";
+    private String brokerHost = "172.28.179.17"; // TODO: Update with your computer's Hotspot IP (from ipconfig) // TODO: Replace with your Laptop's Hotspot IP
     private int brokerPort = 9000;
 
     private Socket socket;

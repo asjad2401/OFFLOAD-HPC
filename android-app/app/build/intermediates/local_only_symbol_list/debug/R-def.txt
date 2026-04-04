@@ -7,6 +7,7 @@ color colorPrimary
 color colorPrimaryDark
 color white
 drawable edittext_bg
+drawable ic_launcher
 drawable progress_bar_bg
 drawable result_card_bg
 drawable spinner_bg

@@ -89,7 +89,7 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\masja\.gradle\cach
 	android:label
 		ADDED from C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:10:9-41
 	android:icon
-		ADDED from C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:9:9-43
+		ADDED from C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:9:9-45
 	android:allowBackup
 		ADDED from C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:8:9-35
 	android:theme
