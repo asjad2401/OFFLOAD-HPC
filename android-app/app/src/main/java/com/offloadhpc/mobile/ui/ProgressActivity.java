@@ -53,7 +53,24 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
         scrollResult = findViewById(R.id.scrollResult);
 
         tvJobId.setText("Job ID: " + jobId);
-        tvJobType.setText("Job Type: " + (jobType.equals("MATMUL") ? "Matrix Multiplication" : "Hash Crack"));
+        String jobTypeLabel;
+        switch (jobType) {
+            case "MATMUL":
+                jobTypeLabel = "Matrix Multiplication";
+                break;
+            case "HASH_CRACK":
+                jobTypeLabel = "Hash Crack";
+                break;
+            case "IMAGE_PROC":
+                jobTypeLabel = "Image Processing";
+                break;
+            case "KMEANS":
+                jobTypeLabel = "K-Means Clustering";
+                break;
+            default:
+                jobTypeLabel = jobType;
+        }
+        tvJobType.setText("Job Type: " + jobTypeLabel);
         tvProgressText.setText("Waiting for acknowledgement…");
 
         // ── Register for incoming messages ──────────────────────────
@@ -101,10 +118,21 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
         tvProgressText.setText("Job completed — " + status);
         scrollResult.setVisibility(View.VISIBLE);
 
-        if ("MATMUL".equals(jobType)) {
-            displayMatMulResult(resultJson);
-        } else {
-            displayHashCrackResult(resultJson);
+        switch (jobType) {
+            case "MATMUL":
+                displayMatMulResult(resultJson);
+                break;
+            case "HASH_CRACK":
+                displayHashCrackResult(resultJson);
+                break;
+            case "IMAGE_PROC":
+                displayImageProcResult(resultJson);
+                break;
+            case "KMEANS":
+                displayKMeansResult(resultJson);
+                break;
+            default:
+                tvResult.setText("Result: " + resultJson);
         }
     }
 
@@ -159,6 +187,65 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
             }
         } catch (Exception e) {
             tvResult.setText("Hash Crack result received but could not parse:\n" + resultJson);
+        }
+    }
+
+    private void displayImageProcResult(String resultJson) {
+        try {
+            JsonObject obj = JsonParser.parseString(resultJson).getAsJsonObject();
+            int width = obj.get("width").getAsInt();
+            int height = obj.get("height").getAsInt();
+            JsonArray pixels = obj.getAsJsonArray("processedPixels");
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("\uD83D\uDDBC Image Processing Complete!\n\n");
+            sb.append("Dimensions: ").append(width).append(" × ").append(height).append("\n");
+            sb.append("Total pixels processed: ").append(pixels.size()).append("\n\n");
+
+            // Show sample pixel values (first 10)
+            sb.append("Sample processed pixels (first 10):\n");
+            int previewCount = Math.min(10, pixels.size());
+            for (int i = 0; i < previewCount; i++) {
+                int px = pixels.get(i).getAsInt();
+                int r = (px >> 16) & 0xFF;
+                int g = (px >> 8) & 0xFF;
+                int b = px & 0xFF;
+                sb.append(String.format("  [%d] R=%d G=%d B=%d\n", i, r, g, b));
+            }
+
+            tvResult.setText(sb.toString());
+        } catch (Exception e) {
+            tvResult.setText("Image processing result received but could not parse:\n" + resultJson);
+        }
+    }
+
+    private void displayKMeansResult(String resultJson) {
+        try {
+            JsonObject obj = JsonParser.parseString(resultJson).getAsJsonObject();
+            int K = obj.get("K").getAsInt();
+            int iterations = obj.get("iterations").getAsInt();
+            JsonArray centroids = obj.getAsJsonArray("centroids");
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("\uD83D\uDCCA K-Means Clustering Complete!\n\n");
+            sb.append("Clusters: ").append(K).append("\n");
+            sb.append("Iterations: ").append(iterations).append("\n\n");
+            sb.append("Final Centroids:\n");
+
+            for (int k = 0; k < centroids.size(); k++) {
+                JsonArray centroid = centroids.get(k).getAsJsonArray();
+                sb.append("  Cluster ").append(k + 1).append(": (");
+                for (int d = 0; d < centroid.size(); d++) {
+                    if (d > 0)
+                        sb.append(", ");
+                    sb.append(String.format("%.2f", centroid.get(d).getAsDouble()));
+                }
+                sb.append(")\n");
+            }
+
+            tvResult.setText(sb.toString());
+        } catch (Exception e) {
+            tvResult.setText("K-Means result received but could not parse:\n" + resultJson);
         }
     }
 }

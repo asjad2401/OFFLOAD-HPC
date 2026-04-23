@@ -3143,6 +3143,7 @@ id action_menu_presenter
 id action_mode_bar
 id action_mode_bar_stub
 id action_mode_close_button
+id action_reconnect
 id action_text
 id actions
 id activity_chooser_view_content
@@ -3175,6 +3176,8 @@ id bounceBoth
 id bounceEnd
 id bounceStart
 id btnSubmitHashCrack
+id btnSubmitImageProc
+id btnSubmitKMeans
 id btnSubmitMatMul
 id buttonPanel
 id cache_measures
@@ -3486,8 +3489,13 @@ id south
 id spacer
 id special_effects_controller_view_tag
 id spinnerAlgorithm
+id spinnerImageSize
+id spinnerIterations
+id spinnerK
 id spinnerMatrixSize
 id spinnerMaxLength
+id spinnerN
+id spinnerOperation
 id spline
 id split_action_bar
 id spread
@@ -3718,6 +3726,8 @@ layout design_navigation_menu_item
 layout design_text_input_end_icon
 layout design_text_input_start_icon
 layout fragment_hashcrack
+layout fragment_imageproc
+layout fragment_kmeans
 layout fragment_matmul
 layout m3_alert_dialog
 layout m3_alert_dialog_actions
@@ -3780,6 +3790,7 @@ layout select_dialog_item_material
 layout select_dialog_multichoice_material
 layout select_dialog_singlechoice_material
 layout support_simple_spinner_dropdown_item
+menu main_menu
 plurals mtrl_badge_content_description
 string abc_action_bar_home_description
 string abc_action_bar_up_description
@@ -3808,6 +3819,7 @@ string abc_searchview_description_voice
 string abc_shareactionprovider_share_with
 string abc_shareactionprovider_share_with_application
 string abc_toolbar_collapse_description
+string action_reconnect
 string androidx_startup
 string app_name
 string appbar_scrolling_view_behavior
@@ -3936,6 +3948,7 @@ string path_password_eye_mask_visible
 string path_password_strike_through
 string search_menu_title
 string searchbar_scrolling_view_behavior
+string searching_broker
 string searchview_clear_text_content_description
 string searchview_navigation_content_description
 string side_sheet_accessibility_pane_title

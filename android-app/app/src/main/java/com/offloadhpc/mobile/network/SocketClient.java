@@ -12,11 +12,20 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 /**
  * Singleton TCP socket client that maintains a persistent connection
- * to the Broker node on port 9000.
+ * to the Broker node.
+ *
+ * v2.0 — supports UDP multicast broker auto-discovery.
+ * On connect(), broadcasts DISCOVER_BROKER on 239.1.1.1:5000,
+ * waits for BROKER_HERE response, then opens TCP.
  *
  * All network I/O runs on background threads to avoid
  * NetworkOnMainThreadException.
@@ -27,9 +36,16 @@ public class SocketClient {
     private static SocketClient instance;
 
     // ── Configurable Broker address ──────────────────────────────────
-    // Change these values to match your Broker's IP and port.
-    private String brokerHost = "172.28.179.17"; // TODO: Update with your computer's Hotspot IP (from ipconfig) // TODO: Replace with your Laptop's Hotspot IP
+    private String brokerHost = null; // null = use UDP auto-discovery
     private int brokerPort = 9000;
+    private boolean useAutoDiscovery = true;
+    private static final String MULTICAST_GROUP = "239.1.1.1";
+    private static final int MULTICAST_PORT = 5000;
+    private static final int DISCOVERY_TIMEOUT_MS = 5000;
+
+    // Fallback IP when auto-discovery fails (e.g. WiFi blocks multicast)
+    // Update this to your broker PC's WiFi IP (run ipconfig to find it)
+    private String fallbackBrokerHost = "10.7.158.49";
 
     private Socket socket;
     private BufferedWriter writer;
@@ -88,6 +104,14 @@ public class SocketClient {
         return socket != null && socket.isConnected() && !socket.isClosed();
     }
 
+    /**
+     * Enable or disable UDP auto-discovery.
+     * If enabled, connect() will broadcast DISCOVER_BROKER before opening TCP.
+     */
+    public void setAutoDiscovery(boolean enabled) {
+        this.useAutoDiscovery = enabled;
+    }
+
     // ── Connect to Broker ───────────────────────────────────────────
     public void connect() {
         if (isConnected()) {
@@ -97,6 +121,16 @@ public class SocketClient {
 
         new Thread(() -> {
             try {
+                // If auto-discovery is enabled and no host is set, discover broker
+                if (useAutoDiscovery && brokerHost == null) {
+                    Log.i(TAG, "Starting UDP broker auto-discovery...");
+                    boolean found = discoverBroker();
+                    if (!found) {
+                        Log.w(TAG, "Auto-discovery failed. Falling back to " + fallbackBrokerHost);
+                        brokerHost = fallbackBrokerHost;
+                    }
+                }
+
                 Log.i(TAG, "Connecting to Broker at " + brokerHost + ":" + brokerPort);
                 socket = new Socket(brokerHost, brokerPort);
                 writer = new BufferedWriter(
@@ -126,6 +160,65 @@ public class SocketClient {
                 });
             }
         }, "SocketClient-Connect").start();
+    }
+
+    /**
+     * Discover the broker via UDP multicast.
+     * Sends DISCOVER_BROKER and waits for BROKER_HERE response.
+     * Returns true if broker was found, sets brokerHost and brokerPort.
+     */
+    private boolean discoverBroker() {
+        try {
+            DatagramSocket sendSocket = new DatagramSocket();
+            sendSocket.setBroadcast(true);
+            sendSocket.setSoTimeout(DISCOVERY_TIMEOUT_MS);
+
+            // Send discovery request
+            String msg = "DISCOVER_BROKER|android|0";
+            byte[] sendData = msg.getBytes();
+            InetAddress group = InetAddress.getByName(MULTICAST_GROUP);
+            DatagramPacket sendPacket = new DatagramPacket(
+                    sendData, sendData.length, group, MULTICAST_PORT);
+            sendSocket.send(sendPacket);
+            Log.i(TAG, "Sent DISCOVER_BROKER to " + MULTICAST_GROUP + ":" + MULTICAST_PORT);
+
+            // Wait for response
+            byte[] recvBuf = new byte[512];
+            DatagramPacket recvPacket = new DatagramPacket(recvBuf, recvBuf.length);
+
+            long deadline = System.currentTimeMillis() + DISCOVERY_TIMEOUT_MS;
+            while (System.currentTimeMillis() < deadline) {
+                try {
+                    int remaining = (int) (deadline - System.currentTimeMillis());
+                    if (remaining <= 0)
+                        break;
+                    sendSocket.setSoTimeout(remaining);
+                    sendSocket.receive(recvPacket);
+
+                    String response = new String(recvPacket.getData(), 0, recvPacket.getLength()).trim();
+                    Log.d(TAG, "Discovery response: " + response);
+
+                    // Parse BROKER_HERE|nodeId|priority|ip|tcpPort
+                    if (response.startsWith("BROKER_HERE|")) {
+                        String[] parts = response.split("\\|");
+                        if (parts.length >= 5) {
+                            brokerHost = parts[3];
+                            brokerPort = Integer.parseInt(parts[4]);
+                            Log.i(TAG, "Broker discovered at " + brokerHost + ":" + brokerPort);
+                            sendSocket.close();
+                            return true;
+                        }
+                    }
+                } catch (SocketTimeoutException e) {
+                    break;
+                }
+            }
+
+            sendSocket.close();
+        } catch (Exception e) {
+            Log.e(TAG, "UDP discovery error: " + e.getMessage(), e);
+        }
+        return false;
     }
 
     // ── Send a job to the Broker ────────────────────────────────────

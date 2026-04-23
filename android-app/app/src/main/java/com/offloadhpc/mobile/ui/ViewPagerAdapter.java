@@ -6,7 +6,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 /**
- * ViewPager2 adapter that returns the two job-submission fragments.
+ * ViewPager2 adapter that returns the four job-submission fragments.
+ * v2.0 — extended with Image Processing and K-Means tabs.
  */
 public class ViewPagerAdapter extends FragmentStateAdapter {
 
@@ -22,6 +23,10 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
                 return new MatMulFragment();
             case 1:
                 return new HashCrackFragment();
+            case 2:
+                return new ImageProcFragment();
+            case 3:
+                return new KMeansFragment();
             default:
                 return new MatMulFragment();
         }
@@ -29,6 +34,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 2;
+        return 4;
     }
 }

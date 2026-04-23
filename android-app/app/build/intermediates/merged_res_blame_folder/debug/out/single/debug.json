@@ -4,14 +4,6 @@
         "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\layout\\activity_progress.xml"
     },
     {
-        "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\drawable_result_card_bg.xml.flat",
-        "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\drawable\\result_card_bg.xml"
-    },
-    {
-        "merged": "com.offloadhpc.mobile.app-merged_res-31:/drawable_ic_launcher.xml.flat",
-        "source": "com.offloadhpc.mobile.app-main-33:/drawable/ic_launcher.xml"
-    },
-    {
         "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\layout_activity_main.xml.flat",
         "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\layout\\activity_main.xml"
     },
@@ -20,12 +12,36 @@
         "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\layout\\fragment_matmul.xml"
     },
     {
+        "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\drawable_spinner_bg.xml.flat",
+        "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\drawable\\spinner_bg.xml"
+    },
+    {
+        "merged": "com.offloadhpc.mobile.app-merged_res-31:/layout_activity_main.xml.flat",
+        "source": "com.offloadhpc.mobile.app-main-33:/layout/activity_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\drawable_result_card_bg.xml.flat",
+        "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\drawable\\result_card_bg.xml"
+    },
+    {
+        "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\layout_fragment_kmeans.xml.flat",
+        "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\layout\\fragment_kmeans.xml"
+    },
+    {
+        "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\drawable_ic_launcher.xml.flat",
+        "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\drawable\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\layout_fragment_imageproc.xml.flat",
+        "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\layout\\fragment_imageproc.xml"
+    },
+    {
         "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\drawable_progress_bar_bg.xml.flat",
         "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\drawable\\progress_bar_bg.xml"
     },
     {
-        "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\drawable_spinner_bg.xml.flat",
-        "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\drawable\\spinner_bg.xml"
+        "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\menu_main_menu.xml.flat",
+        "source": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-main-33:\\menu\\main_menu.xml"
     },
     {
         "merged": "C:\\Users\\masja\\.gradle\\daemon\\8.2\\com.offloadhpc.mobile.app-merged_res-31:\\layout_fragment_hashcrack.xml.flat",

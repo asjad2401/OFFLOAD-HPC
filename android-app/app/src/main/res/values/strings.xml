@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">OFFLOAD HPC</string>
+    <string name="action_reconnect">Reconnect</string>
+    <string name="searching_broker">Searching for Broker...</string>
 </resources>
