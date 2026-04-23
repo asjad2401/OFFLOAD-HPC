@@ -259,10 +259,11 @@ public class SocketClient {
             try {
                 String line;
                 while (running && (line = reader.readLine()) != null) {
+                    // Suppress excessive logging of the raw json line to prevent log buffer drops
                     Log.d(TAG, "Received: " + line.substring(0, Math.min(line.length(), 200)));
                     final String msg = line;
-                    // Dispatch on main thread so listeners can update UI
-                    mainHandler.post(() -> dispatcher.dispatch(msg));
+                    // Dispatch on current background thread; MessageDispatcher will post UI updates
+                    dispatcher.dispatch(msg);
                 }
             } catch (IOException e) {
                 if (running) {

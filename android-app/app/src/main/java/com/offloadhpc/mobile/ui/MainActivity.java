@@ -82,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_reconnect) {
+            if (SocketClient.getInstance().isConnected()) {
+                Toast.makeText(this, "Already connected to grid.", Toast.LENGTH_SHORT).show();
+                return true;
+            }
             Toast.makeText(this, R.string.searching_broker, Toast.LENGTH_SHORT).show();
             SocketClient.getInstance().disconnect();
             // In UDP discovery mode, the SocketClient expects brokerHost to be null

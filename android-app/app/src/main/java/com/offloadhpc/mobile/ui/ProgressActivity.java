@@ -6,6 +6,8 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
+import android.graphics.Bitmap;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -34,6 +36,9 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
     private ProgressBar progressBar;
     private TextView tvResult;
     private ScrollView scrollResult;
+    private ImageView ivResultImage;
+
+    private long startTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +56,9 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
         progressBar = findViewById(R.id.progressBar);
         tvResult = findViewById(R.id.tvResult);
         scrollResult = findViewById(R.id.scrollResult);
+        ivResultImage = findViewById(R.id.ivResultImage);
+
+        startTime = System.currentTimeMillis();
 
         tvJobId.setText("Job ID: " + jobId);
         String jobTypeLabel;
@@ -71,7 +79,7 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
                 jobTypeLabel = jobType;
         }
         tvJobType.setText("Job Type: " + jobTypeLabel);
-        tvProgressText.setText("Waiting for acknowledgement…");
+        tvProgressText.setText("Uploading task to Grid...");
 
         // ── Register for incoming messages ──────────────────────────
         SocketClient.getInstance().setMessageListener(this);
@@ -117,6 +125,7 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
         progressBar.setVisibility(View.GONE);
         tvProgressText.setText("Job completed — " + status);
         scrollResult.setVisibility(View.VISIBLE);
+        ivResultImage.setVisibility(View.GONE);
 
         switch (jobType) {
             case "MATMUL":
@@ -151,7 +160,11 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
             int rows = matrixC.size();
             int cols = matrixC.get(0).getAsJsonArray().size();
 
+            double elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
+
             StringBuilder sb = new StringBuilder();
+            sb.append("\uD83D\uDDA5 Total Processing Time: ").append(String.format("%.2f", elapsedSeconds))
+                    .append("s\n\n");
             sb.append("Result Matrix C: ").append(rows).append(" × ").append(cols).append("\n\n");
             sb.append("Top-left 3×3 corner:\n");
 
@@ -177,13 +190,15 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
     private void displayHashCrackResult(String resultJson) {
         try {
             JsonObject obj = JsonParser.parseString(resultJson).getAsJsonObject();
+            double elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
+            String timeStr = "\n\n\uD83D\uDDA5 Total Processing Time: " + String.format("%.2f", elapsedSeconds) + "s";
 
             if (obj.has("crackedValue") && !obj.get("crackedValue").isJsonNull()) {
                 String cracked = obj.get("crackedValue").getAsString();
                 String algorithm = obj.has("algorithm") ? obj.get("algorithm").getAsString() : "Unknown";
-                tvResult.setText("🔓 Cracked!\n\nValue: " + cracked + "\nAlgorithm: " + algorithm);
+                tvResult.setText("🔓 Cracked!\n\nValue: " + cracked + "\nAlgorithm: " + algorithm + timeStr);
             } else {
-                tvResult.setText("❌ Not Found\n\nThe password was not found within the search space.");
+                tvResult.setText("❌ Not Found\n\nThe password was not found within the search space." + timeStr);
             }
         } catch (Exception e) {
             tvResult.setText("Hash Crack result received but could not parse:\n" + resultJson);
@@ -191,32 +206,38 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
     }
 
     private void displayImageProcResult(String resultJson) {
-        try {
-            JsonObject obj = JsonParser.parseString(resultJson).getAsJsonObject();
-            int width = obj.get("width").getAsInt();
-            int height = obj.get("height").getAsInt();
-            JsonArray pixels = obj.getAsJsonArray("processedPixels");
+        tvResult.setText("Receiving processed image from Grid... Please wait.");
+        new Thread(() -> {
+            try {
+                JsonObject obj = JsonParser.parseString(resultJson).getAsJsonObject();
+                int width = obj.get("width").getAsInt();
+                int height = obj.get("height").getAsInt();
+                JsonArray pixels = obj.getAsJsonArray("processedPixels");
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("\uD83D\uDDBC Image Processing Complete!\n\n");
-            sb.append("Dimensions: ").append(width).append(" × ").append(height).append("\n");
-            sb.append("Total pixels processed: ").append(pixels.size()).append("\n\n");
+                int[] pixelArray = new int[pixels.size()];
+                for (int i = 0; i < pixels.size(); i++) {
+                    pixelArray[i] = pixels.get(i).getAsInt();
+                }
+                Bitmap bmp = Bitmap.createBitmap(pixelArray, width, height, Bitmap.Config.ARGB_8888);
 
-            // Show sample pixel values (first 10)
-            sb.append("Sample processed pixels (first 10):\n");
-            int previewCount = Math.min(10, pixels.size());
-            for (int i = 0; i < previewCount; i++) {
-                int px = pixels.get(i).getAsInt();
-                int r = (px >> 16) & 0xFF;
-                int g = (px >> 8) & 0xFF;
-                int b = px & 0xFF;
-                sb.append(String.format("  [%d] R=%d G=%d B=%d\n", i, r, g, b));
+                runOnUiThread(() -> {
+                    double elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
+                    ivResultImage.setImageBitmap(bmp);
+                    ivResultImage.setVisibility(View.VISIBLE);
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("\uD83D\uDDBC Image Processing Complete!\n\n");
+                    sb.append("\uD83D\uDDA5 Total Grid Assembly Time: ").append(String.format("%.2f", elapsedSeconds))
+                            .append("s\n\n");
+                    sb.append("Dimensions: ").append(width).append(" × ").append(height).append("\n");
+
+                    tvResult.setText(sb.toString());
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> tvResult
+                        .setText("Image processing result received but could not parse:\n" + e.getMessage()));
             }
-
-            tvResult.setText(sb.toString());
-        } catch (Exception e) {
-            tvResult.setText("Image processing result received but could not parse:\n" + resultJson);
-        }
+        }).start();
     }
 
     private void displayKMeansResult(String resultJson) {
@@ -226,8 +247,12 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
             int iterations = obj.get("iterations").getAsInt();
             JsonArray centroids = obj.getAsJsonArray("centroids");
 
+            double elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
+
             StringBuilder sb = new StringBuilder();
             sb.append("\uD83D\uDCCA K-Means Clustering Complete!\n\n");
+            sb.append("\uD83D\uDDA5 Total Processing Time: ").append(String.format("%.2f", elapsedSeconds))
+                    .append("s\n\n");
             sb.append("Clusters: ").append(K).append("\n");
             sb.append("Iterations: ").append(iterations).append("\n\n");
             sb.append("Final Centroids:\n");

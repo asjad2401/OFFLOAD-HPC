@@ -1,5 +1,7 @@
 package com.offloadhpc.mobile.network;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -14,6 +16,7 @@ public class MessageDispatcher {
 
     private static final String TAG = "MessageDispatcher";
     private final Gson gson = new Gson();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private MessageListener listener;
 
     public void setListener(MessageListener listener) {
@@ -45,14 +48,14 @@ public class MessageDispatcher {
                     String ackJobId = obj.get("jobId").getAsString();
                     int totalSubTasks = obj.get("totalSubTasks").getAsInt();
                     String ackStatus = obj.get("status").getAsString();
-                    listener.onJobAck(ackJobId, totalSubTasks, ackStatus);
+                    mainHandler.post(() -> listener.onJobAck(ackJobId, totalSubTasks, ackStatus));
                     break;
 
                 case "PROGRESS_UPDATE":
                     String progressJobId = obj.get("jobId").getAsString();
                     int completed = obj.get("completedSubTasks").getAsInt();
                     int total = obj.get("totalSubTasks").getAsInt();
-                    listener.onProgressUpdate(progressJobId, completed, total);
+                    mainHandler.post(() -> listener.onProgressUpdate(progressJobId, completed, total));
                     break;
 
                 case "JOB_RESULT":
@@ -61,7 +64,7 @@ public class MessageDispatcher {
                     // Pass the full result object as JSON string for flexible parsing
                     JsonObject resultObj = obj.getAsJsonObject("result");
                     String resultJson = resultObj != null ? resultObj.toString() : "{}";
-                    listener.onJobResult(resultJobId, resultStatus, resultJson);
+                    mainHandler.post(() -> listener.onJobResult(resultJobId, resultStatus, resultJson));
                     break;
 
                 default:

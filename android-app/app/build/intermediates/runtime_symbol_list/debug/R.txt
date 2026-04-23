@@ -3174,6 +3174,7 @@ int id bounce 0x7f08005e
 int id bounceBoth 0x7f08005f
 int id bounceEnd 0x7f080060
 int id bounceStart 0x7f080061
+int id btnSelectImage 0x7f080205
 int id btnSubmitHashCrack 0x7f080062
 int id btnSubmitImageProc 0x7f0801fd
 int id btnSubmitKMeans 0x7f0801fe
@@ -3307,6 +3308,8 @@ int id invisible 0x7f0800e1
 int id inward 0x7f0800e2
 int id italic 0x7f0800e3
 int id item_touch_helper_previous_elevation 0x7f0800e4
+int id ivPreview 0x7f080206
+int id ivResultImage 0x7f080207
 int id jumpToEnd 0x7f0800e5
 int id jumpToStart 0x7f0800e6
 int id labeled 0x7f0800e7

@@ -3175,6 +3175,7 @@ id bounce
 id bounceBoth
 id bounceEnd
 id bounceStart
+id btnSelectImage
 id btnSubmitHashCrack
 id btnSubmitImageProc
 id btnSubmitKMeans
@@ -3308,6 +3309,8 @@ id invisible
 id inward
 id italic
 id item_touch_helper_previous_elevation
+id ivPreview
+id ivResultImage
 id jumpToEnd
 id jumpToStart
 id labeled

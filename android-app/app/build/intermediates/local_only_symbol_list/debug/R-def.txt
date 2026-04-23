@@ -12,11 +12,14 @@ drawable progress_bar_bg
 drawable result_card_bg
 drawable spinner_bg
 id action_reconnect
+id btnSelectImage
 id btnSubmitHashCrack
 id btnSubmitImageProc
 id btnSubmitKMeans
 id btnSubmitMatMul
 id editTargetHash
+id ivPreview
+id ivResultImage
 id progressBar
 id scrollResult
 id spinnerAlgorithm

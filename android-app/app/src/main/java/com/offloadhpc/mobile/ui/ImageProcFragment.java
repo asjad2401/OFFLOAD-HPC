@@ -6,12 +6,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.io.InputStream;
 import androidx.fragment.app.Fragment;
 
 import com.offloadhpc.mobile.R;
@@ -34,6 +41,23 @@ public class ImageProcFragment extends Fragment {
 
     private Spinner spinnerImageSize;
     private Spinner spinnerOperation;
+    private ImageView ivPreview;
+    private Bitmap selectedBitmap;
+
+    private final ActivityResultLauncher<String> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    try {
+                        InputStream is = requireContext().getContentResolver().openInputStream(uri);
+                        selectedBitmap = BitmapFactory.decodeStream(is);
+                        ivPreview.setImageBitmap(selectedBitmap);
+                        if (is != null)
+                            is.close();
+                    } catch (Exception e) {
+                        Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
 
     @Nullable
     @Override
@@ -45,6 +69,10 @@ public class ImageProcFragment extends Fragment {
         spinnerImageSize = view.findViewById(R.id.spinnerImageSize);
         spinnerOperation = view.findViewById(R.id.spinnerOperation);
         Button btnSubmit = view.findViewById(R.id.btnSubmitImageProc);
+        Button btnSelectImage = view.findViewById(R.id.btnSelectImage);
+        ivPreview = view.findViewById(R.id.ivPreview);
+
+        btnSelectImage.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
 
         // Image size spinner
         ArrayAdapter<String> sizeAdapter = new ArrayAdapter<>(
@@ -78,8 +106,20 @@ public class ImageProcFragment extends Fragment {
         int width = size;
         int height = size;
 
-        // Generate a random test image (ARGB pixel array)
-        List<Integer> pixelData = generateTestImage(width, height);
+        List<Integer> pixelData;
+        if (selectedBitmap != null) {
+            width = selectedBitmap.getWidth();
+            height = selectedBitmap.getHeight();
+            int[] pixels = new int[width * height];
+            selectedBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+            pixelData = new ArrayList<>(pixels.length);
+            for (int p : pixels) {
+                pixelData.add(p);
+            }
+        } else {
+            // Generate a random test image (ARGB pixel array)
+            pixelData = generateTestImage(width, height);
+        }
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("width", width);

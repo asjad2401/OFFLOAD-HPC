@@ -63,16 +63,31 @@
         android:layout_weight="1"
         android:visibility="gone">
 
-        <TextView
-            android:id="@+id/tvResult"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="16sp"
-            android:textColor="#222222"
-            android:fontFamily="monospace"
-            android:padding="16dp"
-            android:background="@drawable/result_card_bg" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:textColor="#222222"
+                android:fontFamily="monospace"
+                android:padding="16dp"
+                android:background="@drawable/result_card_bg"
+                android:layout_marginBottom="16dp" />
+
+            <ImageView
+                android:id="@+id/ivResultImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
     </ScrollView>
 
