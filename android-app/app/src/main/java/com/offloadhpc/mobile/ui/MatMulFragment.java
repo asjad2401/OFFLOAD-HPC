@@ -73,8 +73,8 @@ public class MatMulFragment extends Fragment {
 
         if (!SocketClient.getInstance().isConnected()) {
             Toast.makeText(requireContext(),
-                    "Not connected to Broker. Reconnecting…", Toast.LENGTH_SHORT).show();
-            SocketClient.getInstance().connect();
+                    "Not connected to Grid. Use the Reconnect button in the toolbar.",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 

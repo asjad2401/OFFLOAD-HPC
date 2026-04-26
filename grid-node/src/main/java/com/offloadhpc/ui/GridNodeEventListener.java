@@ -21,6 +21,15 @@ public interface GridNodeEventListener {
     /** Called when a job completes. */
     void onJobCompleted(String jobId, String jobType, String status);
 
+    /** Called when a mobile client connects to the broker. */
+    void onMobileClientConnected(String clientIp);
+
+    /** Called when a mobile client disconnects from the broker. */
+    void onMobileClientDisconnected(String clientIp);
+
+    /** Called when this worker node is assigned a sub-task. */
+    void onWorkerJobAssigned(String subTaskId, String jobType, long durationMs);
+
     /** General log message for the event log. */
     void onLogMessage(String message);
 }

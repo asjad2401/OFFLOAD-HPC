@@ -82,10 +82,15 @@ public class UdpDiscovery {
                     socket.receive(packet);
                     String message = new String(packet.getData(), 0, packet.getLength()).trim();
                     if (!message.isEmpty()) {
+                        // For DISCOVER_BROKER, append sender address so broker can reply directly
+                        if (message.startsWith("DISCOVER_BROKER|")) {
+                            String senderInfo = packet.getAddress().getHostAddress() + ":" + packet.getPort();
+                            message = message + "|SENDER|" + senderInfo;
+                        }
                         messageHandler.accept(message);
                     }
                 } catch (SocketTimeoutException e) {
-                    // Expected — loop and check running flag
+                    // Expected -- loop and check running flag
                 } catch (IOException e) {
                     if (running) {
                         System.err.println("[UdpDiscovery] Receive error: " + e.getMessage());
@@ -109,6 +114,21 @@ public class UdpDiscovery {
             socket.send(packet);
         } catch (IOException e) {
             System.err.println("[UdpDiscovery] Send error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Send a unicast message directly to a specific address and port.
+     * Used for replying to DISCOVER_BROKER from mobile clients.
+     */
+    public void sendTo(String message, InetAddress address, int targetPort) {
+        try {
+            byte[] data = message.getBytes();
+            DatagramPacket packet = new DatagramPacket(data, data.length, address, targetPort);
+            socket.send(packet);
+            System.out.println("[UdpDiscovery] Sent unicast to " + address.getHostAddress() + ":" + targetPort);
+        } catch (IOException e) {
+            System.err.println("[UdpDiscovery] SendTo error: " + e.getMessage());
         }
     }
 

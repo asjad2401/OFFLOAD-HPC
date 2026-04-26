@@ -1,5 +1,6 @@
 package com.offloadhpc.worker;
 
+import com.offloadhpc.ui.GridNodeEventListener;
 import com.offloadhpc.worker.rmi.WorkerServiceImpl;
 
 import java.io.BufferedReader;
@@ -15,16 +16,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * WorkerRunner — manages the worker lifecycle within a GridNode.
+ * WorkerRunner -- manages the worker lifecycle within a GridNode.
  *
- * Responsibilities:
- * 1. Start RMI service and bind to registry
- * 2. Register with broker over TCP (with capabilities)
- * 3. Send periodic heartbeats to broker
+ * v2.1 -- event listener for sub-task tracking in UI.
  */
 public class WorkerRunner {
 
-    private static final long HEARTBEAT_INTERVAL_MS = 5000; // 5 seconds
+    private static final long HEARTBEAT_INTERVAL_MS = 5000;
 
     private final String workerId;
     private final String brokerHost;
@@ -35,12 +33,17 @@ public class WorkerRunner {
     private WorkerServiceImpl serviceImpl;
     private ScheduledExecutorService heartbeatScheduler;
     private volatile boolean running = false;
+    private GridNodeEventListener eventListener;
 
     public WorkerRunner(String workerId, String brokerHost, int brokerPort, int rmiPort) {
         this.workerId = workerId;
         this.brokerHost = brokerHost;
         this.brokerPort = brokerPort;
         this.rmiPort = rmiPort;
+    }
+
+    public void setEventListener(GridNodeEventListener listener) {
+        this.eventListener = listener;
     }
 
     /**
@@ -50,14 +53,14 @@ public class WorkerRunner {
         String localIp = InetAddress.getLocalHost().getHostAddress();
         System.setProperty("java.rmi.server.hostname", localIp);
 
-        // Create or reuse RMI registry (handles restart after re-election)
+        // Create or reuse RMI registry
         try {
             rmiRegistry = LocateRegistry.createRegistry(rmiPort);
         } catch (Exception e) {
-            // Registry already exists on this port — reuse it
             rmiRegistry = LocateRegistry.getRegistry(rmiPort);
         }
         serviceImpl = new WorkerServiceImpl(workerId);
+        serviceImpl.setEventListener(eventListener);
         rmiRegistry.rebind("WorkerService", serviceImpl);
         System.out.println("[Worker " + workerId + "] RMI ready on port " + rmiPort);
         System.out.println("[Worker " + workerId + "] Local IP: " + localIp);
@@ -82,18 +85,20 @@ public class WorkerRunner {
 
     /**
      * Register this worker with the Broker over TCP, including capability info.
-     * Retries up to 3 times with 2s backoff for LAN timing windows.
+     * Retries up to 5 times with 2s backoff for LAN timing windows.
      */
     private void registerWithBroker(String localIp) {
         Runtime rt = Runtime.getRuntime();
         int cpuCores = rt.availableProcessors();
         long memMB = rt.maxMemory() / (1024 * 1024);
 
-        int maxRetries = 3;
+        int maxRetries = 5;
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try (Socket socket = new Socket(brokerHost, brokerPort);
                     PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+                socket.setSoTimeout(5000); // 5s read timeout
 
                 String registerMsg = "{"
                         + "\"type\":\"WORKER_REGISTER\","
@@ -112,7 +117,7 @@ public class WorkerRunner {
                 String response = in.readLine();
                 if (response != null && response.contains("\"REGISTERED\"")) {
                     System.out.println("[Worker " + workerId + "] Successfully registered with Broker.");
-                    return; // success
+                    return;
                 } else {
                     System.err.println("[Worker " + workerId + "] Unexpected response: " + response);
                 }
@@ -121,7 +126,7 @@ public class WorkerRunner {
                         " failed: " + e.getMessage());
                 if (attempt < maxRetries) {
                     try {
-                        Thread.sleep(2000); // 2s backoff
+                        Thread.sleep(2000);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                         break;
@@ -130,16 +135,17 @@ public class WorkerRunner {
             }
         }
 
-        System.err.println("[Worker " + workerId + "] Failed to register after " + maxRetries + " attempts. " +
-                "Worker will continue running. Registration can be reattempted.");
+        System.err.println("[Worker " + workerId + "] Failed to register after " + maxRetries + " attempts.");
     }
 
     /**
-     * Send a heartbeat to the broker over a short-lived TCP connection.
+     * Send a heartbeat to the broker.
      */
     private void sendHeartbeat() {
         try (Socket socket = new Socket(brokerHost, brokerPort);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+
+            socket.setSoTimeout(3000);
 
             String heartbeat = "{"
                     + "\"type\":\"WORKER_HEARTBEAT\","
@@ -149,7 +155,6 @@ public class WorkerRunner {
             out.println(heartbeat);
             out.flush();
         } catch (Exception e) {
-            // Broker might be down — will be handled by re-election
             if (running) {
                 System.err.println("[Worker " + workerId + "] Heartbeat failed: " + e.getMessage());
             }

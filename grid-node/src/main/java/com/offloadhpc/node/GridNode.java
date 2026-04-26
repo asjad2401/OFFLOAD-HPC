@@ -12,22 +12,11 @@ import javax.swing.*;
 import java.net.InetAddress;
 
 /**
- * GridNode — unified entry point for OFFLOAD-HPC v2.0.
+ * GridNode -- unified entry point for OFFLOAD-HPC v2.1.
  *
- * Every machine runs a GridNode. On startup:
- * 1. Start UDP multicast discovery
- * 2. Run Bully election algorithm
- * 3. If elected → start BrokerServer + embedded WorkerRunner
- * 4. If not elected → start WorkerRunner only, register with broker
- *
- * On broker failure → re-election triggers automatically.
- *
- * Usage: java GridNode <nodeId> [priority] [tcpPort] [rmiPort] [--headless]
- * nodeId - unique node identifier (e.g. n1, n2)
- * priority - election priority (higher wins). Default: hash of nodeId
- * tcpPort - TCP port for broker role. Default: 9000
- * rmiPort - RMI port for worker role. Default: 1099
- * --headless - disable Swing UI, CLI only
+ * v2.1 -- hardened role transitions: synchronized start/stop of
+ * broker and worker components, prevents race conditions during
+ * re-elections on LAN.
  */
 public class GridNode {
 
@@ -38,7 +27,10 @@ public class GridNode {
     private BrokerServer brokerServer;
     private WorkerRunner workerRunner;
 
-    // Optional event listener (UI or null for headless)
+    // Synchronizes role transitions (startAsBroker / startAsWorker)
+    private final Object roleLock = new Object();
+    private volatile String currentRole = "NONE";
+
     private GridNodeEventListener eventListener;
 
     public GridNode(NodeConfig config) {
@@ -66,7 +58,7 @@ public class GridNode {
      */
     public void start() throws Exception {
         System.out.println("==============================================");
-        System.out.println("   OFFLOAD-HPC GridNode v2.0");
+        System.out.println("   OFFLOAD-HPC GridNode v2.1");
         System.out.println("   Node: " + config.getNodeId());
         System.out.println("   Priority: " + config.getPriority());
         System.out.println("   TCP Port: " + config.getTcpPort());
@@ -91,36 +83,40 @@ public class GridNode {
         election.setListener(new BullyElection.ElectionListener() {
             @Override
             public void onElectedAsBroker() {
-                startAsBroker(localIp);
-                if (eventListener != null) {
-                    eventListener.onRoleChanged("BROKER", config.getNodeId(), localIp, config.getTcpPort());
-                }
+                new Thread(() -> {
+                    startAsBroker(localIp);
+                    if (eventListener != null) {
+                        eventListener.onRoleChanged("BROKER", config.getNodeId(), localIp, config.getTcpPort());
+                    }
+                }, "RoleTransition-Broker").start();
             }
 
             @Override
             public void onBrokerDiscovered(String brokerId, String brokerIp, int brokerTcpPort) {
-                // Use the actual broker IP from the COORDINATOR message
-                if (brokerIp == null || brokerIp.isEmpty()) {
-                    // Fallback: try getting it from election state or use localIp
-                    brokerIp = election.getCurrentBrokerIp();
-                    if (brokerIp == null) {
-                        brokerIp = localIp; // last resort for same-machine testing
+                String ip = brokerIp;
+                if (ip == null || ip.isEmpty()) {
+                    ip = election.getCurrentBrokerIp();
+                    if (ip == null) ip = localIp;
+                }
+                final String finalIp = ip;
+                new Thread(() -> {
+                    startAsWorker(finalIp, brokerTcpPort);
+                    if (eventListener != null) {
+                        eventListener.onRoleChanged("WORKER", brokerId, finalIp, brokerTcpPort);
                     }
-                }
-                startAsWorker(brokerIp, brokerTcpPort);
-                if (eventListener != null) {
-                    eventListener.onRoleChanged("WORKER", brokerId, brokerIp, brokerTcpPort);
-                }
+                }, "RoleTransition-Worker").start();
             }
 
             @Override
             public void onBrokerLost() {
-                System.out.println("[GridNode] Broker lost! Stopping current worker...");
-                stopWorker();
-                if (eventListener != null) {
-                    eventListener.onLogMessage("⚠ Broker lost! Re-election starting...");
+                System.out.println("[GridNode] Broker lost! Cleaning up...");
+                synchronized (roleLock) {
+                    stopWorkerInternal();
+                    currentRole = "NONE";
                 }
-                // Re-election will be triggered by BullyElection
+                if (eventListener != null) {
+                    eventListener.onLogMessage("[!] Broker lost! Re-election starting...");
+                }
             }
         });
 
@@ -135,40 +131,43 @@ public class GridNode {
 
     /**
      * Activate broker role: start BrokerServer + embedded worker.
+     * Synchronized to prevent race with concurrent role transitions.
      */
     private void startAsBroker(String localIp) {
-        try {
-            // Stop any existing worker/broker from a previous election
-            stopWorker();
-            stopBroker();
-            Thread.sleep(1000); // let ports release
+        synchronized (roleLock) {
+            try {
+                System.out.println("[GridNode] Transitioning to BROKER role...");
 
-            NodeRegistry registry = new NodeRegistry();
-            // Wire registry to the UI event listener
-            registry.setEventListener(eventListener);
+                // Stop any existing components
+                stopWorkerInternal();
+                stopBrokerInternal();
+                Thread.sleep(1500); // let ports release
 
-            brokerServer = new BrokerServer(config.getTcpPort(), registry);
-            // Wire broker server to the UI event listener
-            brokerServer.setEventListener(eventListener);
+                NodeRegistry registry = new NodeRegistry();
+                registry.setEventListener(eventListener);
 
-            // Start broker server in background thread
-            Thread brokerThread = new Thread(() -> brokerServer.start(), "BrokerServer");
-            brokerThread.setDaemon(true);
-            brokerThread.start();
+                brokerServer = new BrokerServer(config.getTcpPort(), registry);
+                brokerServer.setEventListener(eventListener);
 
-            // Wait a moment for server to start
-            Thread.sleep(500);
+                Thread brokerThread = new Thread(() -> brokerServer.start(), "BrokerServer");
+                brokerThread.setDaemon(true);
+                brokerThread.start();
 
-            // Start embedded worker (registers with self)
-            workerRunner = new WorkerRunner(
-                    config.getNodeId() + "-worker",
-                    localIp, config.getTcpPort(), config.getRmiPort());
-            workerRunner.start();
+                Thread.sleep(500); // wait for ServerSocket to bind
 
-            System.out.println("[GridNode] Broker + embedded worker active");
-        } catch (Exception e) {
-            System.err.println("[GridNode] Failed to start broker: " + e.getMessage());
-            e.printStackTrace();
+                // Start embedded worker
+                workerRunner = new WorkerRunner(
+                        config.getNodeId() + "-worker",
+                        localIp, config.getTcpPort(), config.getRmiPort());
+                workerRunner.setEventListener(eventListener);
+                workerRunner.start();
+
+                currentRole = "BROKER";
+                System.out.println("[GridNode] BROKER + embedded worker active");
+            } catch (Exception e) {
+                System.err.println("[GridNode] Failed to start broker: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -176,30 +175,40 @@ public class GridNode {
      * Activate worker role: connect to discovered broker.
      */
     private void startAsWorker(String brokerIp, int brokerTcpPort) {
-        try {
-            // Stop any existing worker
-            stopWorker();
+        synchronized (roleLock) {
+            try {
+                System.out.println("[GridNode] Transitioning to WORKER role (broker=" +
+                        brokerIp + ":" + brokerTcpPort + ")...");
 
-            workerRunner = new WorkerRunner(
-                    config.getNodeId(),
-                    brokerIp, brokerTcpPort, config.getRmiPort());
-            workerRunner.start();
+                // Stop existing components
+                stopWorkerInternal();
+                stopBrokerInternal();
+                Thread.sleep(500);
 
-            System.out.println("[GridNode] Worker active, broker at " + brokerIp + ":" + brokerTcpPort);
-        } catch (Exception e) {
-            System.err.println("[GridNode] Failed to start worker: " + e.getMessage());
-            e.printStackTrace();
+                workerRunner = new WorkerRunner(
+                        config.getNodeId(),
+                        brokerIp, brokerTcpPort, config.getRmiPort());
+                workerRunner.setEventListener(eventListener);
+                workerRunner.start();
+
+                currentRole = "WORKER";
+                System.out.println("[GridNode] WORKER active, broker at " + brokerIp + ":" + brokerTcpPort);
+            } catch (Exception e) {
+                System.err.println("[GridNode] Failed to start worker: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
-    private void stopWorker() {
+    // Internal stop methods (called within roleLock)
+    private void stopWorkerInternal() {
         if (workerRunner != null) {
             workerRunner.stop();
             workerRunner = null;
         }
     }
 
-    private void stopBroker() {
+    private void stopBrokerInternal() {
         if (brokerServer != null) {
             brokerServer.stop();
             brokerServer = null;
@@ -216,13 +225,13 @@ public class GridNode {
         }
         election.shutdown();
         udp.stop();
-        if (workerRunner != null)
-            workerRunner.stop();
-        if (brokerServer != null)
-            brokerServer.stop();
+        synchronized (roleLock) {
+            stopWorkerInternal();
+            stopBrokerInternal();
+        }
     }
 
-    // ── Main ───────────────────────────────────────────────────────
+    // -- Main --
 
     public static void main(String[] args) {
         if (args.length < 1) {
@@ -245,7 +254,6 @@ public class GridNode {
         int tcpPort = args.length > 2 ? Integer.parseInt(args[2]) : 9000;
         int rmiPort = args.length > 3 ? Integer.parseInt(args[3]) : 1099;
 
-        // Check for --headless flag
         boolean headless = false;
         for (String arg : args) {
             if ("--headless".equalsIgnoreCase(arg) || "--no-ui".equalsIgnoreCase(arg)) {
@@ -258,10 +266,6 @@ public class GridNode {
         GridNode node = new GridNode(config);
 
         if (!headless) {
-            // Use default cross-platform LAF (Metal) — it respects custom colors
-            // Windows native LAF ignores setBackground/setForeground on buttons
-
-            // Launch UI on EDT
             String localIp;
             try {
                 localIp = InetAddress.getLocalHost().getHostAddress();
@@ -274,7 +278,6 @@ public class GridNode {
                 GridNodeUI ui = new GridNodeUI(nodeId, priority, tcpPort, rmiPort, ip);
                 node.setEventListener(ui);
 
-                // Wire control callbacks
                 ui.setOnForceElection(() -> node.getElection().forceElection());
                 ui.setOnStopNode(() -> node.shutdown());
 

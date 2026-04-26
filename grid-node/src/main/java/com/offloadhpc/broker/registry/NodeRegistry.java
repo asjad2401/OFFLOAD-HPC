@@ -21,8 +21,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class NodeRegistry {
 
-    private static final long HEARTBEAT_TIMEOUT_MS = 15000; // 15 seconds
-    private static final long EVICTION_CHECK_INTERVAL_MS = 5000; // check every 5s
+    private static final long HEARTBEAT_TIMEOUT_MS = 30000; // 30 seconds (LAN tolerant)
+    private static final long EVICTION_CHECK_INTERVAL_MS = 10000; // check every 10s
 
     private final ConcurrentHashMap<String, WorkerInfo> registry = new ConcurrentHashMap<>();
     private final ScheduledExecutorService evictionScheduler;
@@ -100,11 +100,15 @@ public class NodeRegistry {
 
     /**
      * Update heartbeat timestamp for a worker.
+     * If the worker was evicted, log it so operators know re-registration is needed.
      */
     public void updateHeartbeat(String workerId) {
         WorkerInfo info = registry.get(workerId);
         if (info != null) {
             info.updateHeartbeat();
+        } else {
+            System.out.println("[Registry] Heartbeat from unknown/evicted worker: " + workerId +
+                    " (worker needs to re-register)");
         }
     }
 
@@ -205,5 +209,12 @@ public class NodeRegistry {
      */
     public void shutdown() {
         evictionScheduler.shutdown();
+    }
+
+    /**
+     * Return the number of registered workers (any status).
+     */
+    public int getAvailableWorkerCount() {
+        return registry.size();
     }
 }

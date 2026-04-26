@@ -112,13 +112,20 @@ public class ImageProcFragment extends Fragment {
 
         List<Integer> pixelData;
         if (selectedBitmap != null) {
-            width = selectedBitmap.getWidth();
-            height = selectedBitmap.getHeight();
+            // Downsample large images to prevent OOM.
+            // Raw pixels in JSON are ~10 bytes each, so 512x512 = ~2.5MB JSON.
+            Bitmap workBitmap = downsampleBitmap(selectedBitmap, 512);
+            width = workBitmap.getWidth();
+            height = workBitmap.getHeight();
             int[] pixels = new int[width * height];
-            selectedBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+            workBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
             pixelData = new ArrayList<>(pixels.length);
             for (int p : pixels) {
                 pixelData.add(p);
+            }
+            // Free the working copy if it's different from the original
+            if (workBitmap != selectedBitmap) {
+                workBitmap.recycle();
             }
         } else {
             // Generate a random test image (ARGB pixel array)
@@ -135,8 +142,8 @@ public class ImageProcFragment extends Fragment {
 
         if (!SocketClient.getInstance().isConnected()) {
             Toast.makeText(requireContext(),
-                    "Not connected to Broker. Reconnecting…", Toast.LENGTH_SHORT).show();
-            SocketClient.getInstance().connect();
+                    "Not connected to Grid. Use the Reconnect button in the toolbar.",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -153,6 +160,22 @@ public class ImageProcFragment extends Fragment {
         intent.putExtra("imageWidth", width);
         intent.putExtra("imageHeight", height);
         startActivity(intent);
+    }
+
+    /**
+     * Downsample a bitmap so its largest dimension is at most maxDim pixels.
+     * Preserves aspect ratio. Returns the original bitmap if already small enough.
+     */
+    private Bitmap downsampleBitmap(Bitmap original, int maxDim) {
+        int w = original.getWidth();
+        int h = original.getHeight();
+        if (w <= maxDim && h <= maxDim) {
+            return original;
+        }
+        float scale = Math.min((float) maxDim / w, (float) maxDim / h);
+        int newW = Math.round(w * scale);
+        int newH = Math.round(h * scale);
+        return Bitmap.createScaledBitmap(original, newW, newH, true);
     }
 
     /**

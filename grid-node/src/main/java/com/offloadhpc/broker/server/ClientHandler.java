@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Handles a single TCP connection — could be a Worker registering
+ * Handles a single TCP connection -- could be a Worker registering
  * or an Android client submitting jobs.
- * v2.0 — supports WORKER_HEARTBEAT, capabilities, and 4 job types.
+ * v2.1 -- tracks mobile client connections, better error handling.
  */
 public class ClientHandler implements Runnable {
 
@@ -29,6 +29,9 @@ public class ClientHandler implements Runnable {
     private final AsyncScheduler scheduler;
     private final GridNodeEventListener eventListener;
 
+    private boolean isMobileClient = false;
+    private String clientIp;
+
     public ClientHandler(Socket socket, NodeRegistry registry,
             JobPartitioner partitioner, AsyncScheduler scheduler,
             GridNodeEventListener eventListener) {
@@ -37,6 +40,7 @@ public class ClientHandler implements Runnable {
         this.partitioner = partitioner;
         this.scheduler = scheduler;
         this.eventListener = eventListener;
+        this.clientIp = socket.getInetAddress().getHostAddress();
     }
 
     @Override
@@ -45,6 +49,10 @@ public class ClientHandler implements Runnable {
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(socket.getInputStream()));
                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
+
+            // Set a generous timeout to detect dead connections
+            socket.setSoTimeout(300000); // 5 min timeout for long jobs
+
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
@@ -66,6 +74,13 @@ public class ClientHandler implements Runnable {
                             handleWorkerHeartbeat(message);
                             break;
                         case "JOB_SUBMIT":
+                            // This is a mobile client
+                            if (!isMobileClient) {
+                                isMobileClient = true;
+                                if (eventListener != null) {
+                                    eventListener.onMobileClientConnected(clientIp);
+                                }
+                            }
                             handleJobSubmit(message, writer);
                             break;
                         default:
@@ -74,36 +89,47 @@ public class ClientHandler implements Runnable {
                 } catch (Exception e) {
                     System.err.println("[ClientHandler] Error processing message: " + e.getMessage());
                     e.printStackTrace();
+                    // Send error back to client so it doesn't hang
+                    try {
+                        JSONObject error = new JSONObject();
+                        error.put("type", "ERROR");
+                        error.put("message", "Server error: " + e.getMessage());
+                        writer.println(error.toString());
+                        writer.flush();
+                    } catch (Exception ignored) {}
                 }
             }
         } catch (IOException e) {
-            System.err.println("[ClientHandler] Connection error: " + e.getMessage());
+            if (!socket.isClosed()) {
+                System.err.println("[ClientHandler] Connection error: " + e.getMessage());
+            }
         } finally {
             try {
                 socket.close();
             } catch (IOException ignored) {
             }
-            System.out.println("[ClientHandler] Connection closed");
+            // Notify if this was a mobile client
+            if (isMobileClient && eventListener != null) {
+                eventListener.onMobileClientDisconnected(clientIp);
+            }
+            System.out.println("[ClientHandler] Connection closed (" + clientIp + ")");
         }
     }
 
     /**
-     * Handle WORKER_REGISTER: add worker to registry (with capabilities) and send
-     * WORKER_ACK.
+     * Handle WORKER_REGISTER: add worker to registry and send WORKER_ACK.
      */
     private void handleWorkerRegister(JSONObject message, PrintWriter writer) {
         String workerId = message.getString("workerId");
         String ip = message.getString("ip");
         int rmiPort = message.getInt("rmiPort");
 
-        // v2.0: read capabilities if present
         int cpuCores = message.optInt("cpuCores", 1);
         long availableMemoryMB = message.optLong("availableMemoryMB", 512);
 
         registry.addWorker(workerId, ip, rmiPort, cpuCores, availableMemoryMB);
         registry.printAll();
 
-        // Send WORKER_ACK
         JSONObject ack = new JSONObject();
         ack.put("type", "WORKER_ACK");
         ack.put("workerId", workerId);
@@ -131,10 +157,24 @@ public class ClientHandler implements Runnable {
         String jobType = message.getString("jobType");
         JSONObject payload = message.getJSONObject("payload");
 
-        System.out.println("[ClientHandler] Job received: " + jobType + " (id=" + jobId + ")");
+        System.out.println("[ClientHandler] Job received: " + jobType + " (id=" + jobId + ") from " + clientIp);
 
         if (eventListener != null) {
             eventListener.onJobReceived(jobId, jobType);
+        }
+
+        // Check if we have workers available
+        if (registry.getAvailableWorkerCount() == 0) {
+            System.err.println("[ClientHandler] No workers available for job " + jobId);
+            JSONObject error = new JSONObject();
+            error.put("type", "JOB_RESULT");
+            error.put("jobId", jobId);
+            error.put("status", "FAILED");
+            error.put("error", "No workers available in the grid");
+            writer.println(error.toString());
+            writer.flush();
+            if (eventListener != null) eventListener.onJobCompleted(jobId, jobType, "FAILED");
+            return;
         }
 
         try {
@@ -171,11 +211,9 @@ public class ClientHandler implements Runnable {
                     int dims = payload.getJSONArray("dataPoints").getJSONArray(0).length();
                     int iterations = payload.optInt("iterations", 10);
 
-                    // Initialize random centroids
                     double[][] initialCentroids = initRandomCentroids(payload, K, dims);
 
                     subTasks = partitioner.partitionKMeans(payload, initialCentroids);
-                    // For K-Means, totalSubTasks = iterations (progress per iteration)
                     sendJobAck(writer, jobId, iterations);
                     scheduler.dispatchKMeans(jobId, subTasks, iterations, K, dims,
                             initialCentroids, partitioner, payload, writer);
@@ -215,13 +253,10 @@ public class ClientHandler implements Runnable {
                 " (" + totalSubTasks + " sub-tasks)");
     }
 
-    /**
-     * Initialize K random centroids by selecting random data points.
-     */
     private double[][] initRandomCentroids(JSONObject payload, int K, int dims) {
         org.json.JSONArray dataArray = payload.getJSONArray("dataPoints");
         int N = dataArray.length();
-        Random rand = new Random(42); // fixed seed for reproducibility
+        Random rand = new Random(42);
         double[][] centroids = new double[K][dims];
 
         for (int k = 0; k < K; k++) {

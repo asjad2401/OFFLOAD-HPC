@@ -6,26 +6,32 @@ import com.offloadhpc.worker.compute.ImageProcEngine;
 import com.offloadhpc.worker.compute.KMeansEngine;
 
 import com.offloadhpc.contract.WorkerService;
+import com.offloadhpc.ui.GridNodeEventListener;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 /**
- * WorkerServiceImpl — RMI implementation of the WorkerService contract.
- * v2.0 — extended with Image Processing, K-Means, and capability reporting.
+ * WorkerServiceImpl -- RMI implementation of the WorkerService contract.
+ * v2.1 -- fires onWorkerJobAssigned events for UI tracking.
  */
 public class WorkerServiceImpl extends UnicastRemoteObject implements WorkerService {
 
     private final String workerId;
+    private GridNodeEventListener eventListener;
 
     public WorkerServiceImpl(String workerId) throws RemoteException {
         super();
         this.workerId = workerId;
     }
 
+    public void setEventListener(GridNodeEventListener listener) {
+        this.eventListener = listener;
+    }
+
     @Override
     public void register(String workerId, String brokerHost, int brokerPort) throws RemoteException {
-        System.out.println("[Worker " + this.workerId + "] register() called via RMI — "
+        System.out.println("[Worker " + this.workerId + "] register() called via RMI -- "
                 + "workerId=" + workerId + ", brokerHost=" + brokerHost + ", brokerPort=" + brokerPort);
     }
 
@@ -43,6 +49,7 @@ public class WorkerServiceImpl extends UnicastRemoteObject implements WorkerServ
 
         System.out.println("[Worker " + workerId + "] MatMul sub-task " + subTaskId
                 + " completed in " + elapsed + " ms");
+        fireJobAssigned(subTaskId, "MATMUL", elapsed);
         return result;
     }
 
@@ -60,8 +67,9 @@ public class WorkerServiceImpl extends UnicastRemoteObject implements WorkerServ
         long elapsed = System.currentTimeMillis() - start;
 
         System.out.println("[Worker " + workerId + "] HashCrack sub-task " + subTaskId
-                + " completed in " + elapsed + " ms — "
+                + " completed in " + elapsed + " ms -- "
                 + (result != null ? "FOUND: " + result : "not found in range"));
+        fireJobAssigned(subTaskId, "HASH_CRACK", elapsed);
         return result;
     }
 
@@ -79,6 +87,7 @@ public class WorkerServiceImpl extends UnicastRemoteObject implements WorkerServ
 
         System.out.println("[Worker " + workerId + "] ImageProc sub-task " + subTaskId
                 + " completed in " + elapsed + " ms");
+        fireJobAssigned(subTaskId, "IMAGE_PROC", elapsed);
         return result;
     }
 
@@ -96,6 +105,7 @@ public class WorkerServiceImpl extends UnicastRemoteObject implements WorkerServ
 
         System.out.println("[Worker " + workerId + "] KMeans sub-task " + subTaskId
                 + " completed in " + elapsed + " ms");
+        fireJobAssigned(subTaskId, "KMEANS", elapsed);
         return result;
     }
 
@@ -106,13 +116,22 @@ public class WorkerServiceImpl extends UnicastRemoteObject implements WorkerServ
         long memMB = rt.maxMemory() / (1024 * 1024);
 
         String json = "{\"cpuCores\":" + cores + ",\"availableMemoryMB\":" + memMB + "}";
-        System.out.println("[Worker " + workerId + "] getCapabilities() → " + json);
+        System.out.println("[Worker " + workerId + "] getCapabilities() -> " + json);
         return json;
     }
 
     @Override
     public boolean ping() throws RemoteException {
-        System.out.println("[Worker " + workerId + "] ping() — alive");
         return true;
+    }
+
+    private void fireJobAssigned(String subTaskId, String jobType, long durationMs) {
+        if (eventListener != null) {
+            try {
+                eventListener.onWorkerJobAssigned(subTaskId, jobType, durationMs);
+            } catch (Exception e) {
+                // Don't let UI errors break RMI calls
+            }
+        }
     }
 }

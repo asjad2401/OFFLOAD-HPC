@@ -146,9 +146,25 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
 
         // Hide progress, show result
         progressBar.setVisibility(View.GONE);
-        tvProgressText.setText("Job completed — " + status);
         scrollResult.setVisibility(View.VISIBLE);
         ivResultImage.setVisibility(View.GONE);
+
+        // Handle FAILED jobs
+        if ("FAILED".equals(status)) {
+            tvProgressText.setText("Job FAILED");
+            String errorMsg = "Job failed on the grid.";
+            try {
+                JsonObject errObj = JsonParser.parseString(resultJson).getAsJsonObject();
+                if (errObj.has("error")) {
+                    errorMsg = errObj.get("error").getAsString();
+                }
+            } catch (Exception ignored) {}
+            tvResult.setText("Job Failed\n\n" + errorMsg +
+                    "\n\nPossible causes:\n- No workers available\n- Worker crashed during processing\n- Network error between nodes\n\nTry again or check the grid status.");
+            return;
+        }
+
+        tvProgressText.setText("Job completed -- " + status);
 
         switch (jobType) {
             case "MATMUL":
@@ -170,6 +186,11 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
 
     @Override
     public void onConnectionError(String errorMessage) {
+        progressBar.setVisibility(View.GONE);
+        tvProgressText.setText("Connection Error");
+        scrollResult.setVisibility(View.VISIBLE);
+        tvResult.setText("Error: " + errorMessage +
+                "\n\nGo back and tap Reconnect to re-establish connection.");
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
     }
 

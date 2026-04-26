@@ -53,15 +53,19 @@ public class MainActivity extends AppCompatActivity {
         client.setConnectionCallback(new SocketClient.ConnectionCallback() {
             @Override
             public void onConnected() {
+                String host = SocketClient.getInstance().getBrokerHost();
+                int port = SocketClient.getInstance().getBrokerPort();
                 Toast.makeText(MainActivity.this,
-                        "Connected to Broker: " + SocketClient.getInstance().getBrokerHost(),
-                        Toast.LENGTH_SHORT).show();
+                        "Connected to Grid\nBroker: " + host + ":" + port,
+                        Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onDisconnected(String reason) {
                 Toast.makeText(MainActivity.this,
-                        "Disconnected: " + reason, Toast.LENGTH_LONG).show();
+                        "Disconnected from Grid: " + reason +
+                        "\nUse Reconnect to find a new broker.",
+                        Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -83,13 +87,15 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_reconnect) {
             if (SocketClient.getInstance().isConnected()) {
-                Toast.makeText(this, "Already connected to grid.", Toast.LENGTH_SHORT).show();
+                String host = SocketClient.getInstance().getBrokerHost();
+                Toast.makeText(this,
+                        "Already connected to grid at " + host,
+                        Toast.LENGTH_SHORT).show();
                 return true;
             }
-            Toast.makeText(this, R.string.searching_broker, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Searching for Grid Broker...", Toast.LENGTH_SHORT).show();
+            // Disconnect and reset discovery state for a fresh scan
             SocketClient.getInstance().disconnect();
-            // In UDP discovery mode, the SocketClient expects brokerHost to be null
-            // to trigger a new discovery phase.
             SocketClient.getInstance().setBrokerAddress(null, 9000);
             startBrokerConnection();
             return true;
@@ -100,6 +106,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        SocketClient.getInstance().disconnect();
+        // Do NOT disconnect here — SocketClient is a singleton that must
+        // survive activity lifecycle. Under memory pressure, Android may
+        // destroy MainActivity while ProgressActivity is waiting for results.
+        // The socket will be cleaned up when the app process exits.
     }
 }

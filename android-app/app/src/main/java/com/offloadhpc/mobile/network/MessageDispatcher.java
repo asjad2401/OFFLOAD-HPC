@@ -64,7 +64,17 @@ public class MessageDispatcher {
                     // Pass the full result object as JSON string for flexible parsing
                     JsonObject resultObj = obj.getAsJsonObject("result");
                     String resultJson = resultObj != null ? resultObj.toString() : "{}";
-                    mainHandler.post(() -> listener.onJobResult(resultJobId, resultStatus, resultJson));
+                    // If FAILED, include error message in the result
+                    if ("FAILED".equals(resultStatus) && obj.has("error")) {
+                        resultJson = "{\"error\":\"" + obj.get("error").getAsString() + "\"}";
+                    }
+                    final String finalResultJson = resultJson;
+                    mainHandler.post(() -> listener.onJobResult(resultJobId, resultStatus, finalResultJson));
+                    break;
+
+                case "ERROR":
+                    String errorMsg = obj.has("message") ? obj.get("message").getAsString() : "Unknown server error";
+                    mainHandler.post(() -> listener.onConnectionError("Server: " + errorMsg));
                     break;
 
                 default:

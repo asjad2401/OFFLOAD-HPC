@@ -12,12 +12,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Minimal Swing-based monitoring UI for the OFFLOAD-HPC GridNode.
- * Shows node status, connected workers, recent jobs, and event log.
+ * Swing-based monitoring UI for the OFFLOAD-HPC GridNode.
+ * Shows node status, connected workers, mobile clients, recent jobs,
+ * worker sub-tasks (for worker role), and event log.
+ *
+ * v2.1 -- added mobile clients panel, worker job tracking,
+ * and better role-dependent visibility.
  */
 public class GridNodeUI extends JFrame implements GridNodeEventListener {
 
-    // ── Theme colors ─────────────────────────────────────────────────
+    // -- Theme colors --
     private static final Color BG_DARK = new Color(30, 30, 36);
     private static final Color BG_PANEL = new Color(40, 42, 54);
     private static final Color BG_TABLE = new Color(44, 46, 58);
@@ -26,9 +30,10 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
     private static final Color ACCENT_BROKER = new Color(80, 250, 123);
     private static final Color ACCENT_WORKER = new Color(139, 233, 253);
     private static final Color ACCENT_WARN = new Color(255, 121, 98);
+    private static final Color ACCENT_MOBILE = new Color(255, 184, 108);
     private static final Color BORDER_COLOR = new Color(60, 63, 80);
 
-    // ── Header labels ────────────────────────────────────────────────
+    // -- Header --
     private JLabel lblNodeId;
     private JLabel lblRole;
     private JLabel lblLocalIp;
@@ -37,22 +42,37 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
     private JLabel lblRmiPort;
     private JLabel lblBrokerInfo;
 
-    // ── Worker table ─────────────────────────────────────────────────
+    // -- Worker table (broker view) --
     private DefaultTableModel workerTableModel;
     private JTable workerTable;
     private JLabel lblWorkerCount;
+    private JPanel workerPanel;
 
-    // ── Job table ────────────────────────────────────────────────────
+    // -- Mobile clients table (broker view) --
+    private DefaultTableModel mobileTableModel;
+    private JTable mobileTable;
+    private JLabel lblMobileCount;
+    private JPanel mobilePanel;
+
+    // -- Job table (broker view: received jobs) --
     private DefaultTableModel jobTableModel;
     private JTable jobTable;
     private JLabel lblJobCount;
     private int jobCounter = 0;
+    private JPanel jobPanel;
 
-    // ── Event log ────────────────────────────────────────────────────
+    // -- Worker sub-task table (worker view: assigned sub-tasks) --
+    private DefaultTableModel subTaskTableModel;
+    private JTable subTaskTable;
+    private JLabel lblSubTaskCount;
+    private int subTaskCounter = 0;
+    private JPanel subTaskPanel;
+
+    // -- Event log --
     private JTextArea taEventLog;
     private final SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm:ss");
 
-    // ── Controls ─────────────────────────────────────────────────────
+    // -- Controls --
     private Runnable onForceElection;
     private Runnable onStopNode;
 
@@ -73,12 +93,11 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
             }
         });
 
-        setSize(700, 780);
+        setSize(720, 850);
         setLocationRelativeTo(null);
         getContentPane().setBackground(BG_DARK);
         setLayout(new BorderLayout(0, 0));
 
-        // Build UI
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(BG_DARK);
@@ -86,10 +105,23 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
 
         mainPanel.add(buildHeaderPanel(nodeId, priority, tcpPort, rmiPort, localIp));
         mainPanel.add(Box.createVerticalStrut(8));
-        mainPanel.add(buildWorkerPanel());
+
+        workerPanel = buildWorkerPanel();
+        mainPanel.add(workerPanel);
         mainPanel.add(Box.createVerticalStrut(8));
-        mainPanel.add(buildJobPanel());
+
+        mobilePanel = buildMobilePanel();
+        mainPanel.add(mobilePanel);
         mainPanel.add(Box.createVerticalStrut(8));
+
+        jobPanel = buildJobPanel();
+        mainPanel.add(jobPanel);
+        mainPanel.add(Box.createVerticalStrut(8));
+
+        subTaskPanel = buildSubTaskPanel();
+        mainPanel.add(subTaskPanel);
+        mainPanel.add(Box.createVerticalStrut(8));
+
         mainPanel.add(buildLogPanel());
         mainPanel.add(Box.createVerticalStrut(8));
         mainPanel.add(buildControlPanel());
@@ -99,9 +131,13 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
         scrollPane.getViewport().setBackground(BG_DARK);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         add(scrollPane, BorderLayout.CENTER);
+
+        // Initially hide role-specific panels
+        mobilePanel.setVisible(false);
+        subTaskPanel.setVisible(false);
     }
 
-    // ── Panel builders ───────────────────────────────────────────────
+    // -- Panel builders --
 
     private JPanel buildHeaderPanel(String nodeId, int priority, int tcpPort, int rmiPort, String localIp) {
         JPanel panel = createStyledPanel("Node Information");
@@ -158,7 +194,28 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
         };
         workerTable = createStyledTable(workerTableModel);
         JScrollPane sp = new JScrollPane(workerTable);
-        sp.setPreferredSize(new Dimension(0, 120));
+        sp.setPreferredSize(new Dimension(0, 100));
+        sp.getViewport().setBackground(BG_TABLE);
+        sp.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
+        panel.add(sp, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel buildMobilePanel() {
+        JPanel panel = createStyledPanel("Connected Mobile Devices");
+
+        lblMobileCount = createKeyLabel("Devices: 0");
+        lblMobileCount.setForeground(ACCENT_MOBILE);
+        panel.add(lblMobileCount, BorderLayout.NORTH);
+
+        String[] cols = {"IP Address", "Connected At", "Status"};
+        mobileTableModel = new DefaultTableModel(cols, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        mobileTable = createStyledTable(mobileTableModel);
+        JScrollPane sp = new JScrollPane(mobileTable);
+        sp.setPreferredSize(new Dimension(0, 70));
         sp.getViewport().setBackground(BG_TABLE);
         sp.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
         panel.add(sp, BorderLayout.CENTER);
@@ -167,7 +224,7 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
     }
 
     private JPanel buildJobPanel() {
-        JPanel panel = createStyledPanel("Recent Jobs");
+        JPanel panel = createStyledPanel("Jobs (Broker View)");
 
         lblJobCount = createKeyLabel("Jobs: 0");
         lblJobCount.setForeground(ACCENT_WORKER);
@@ -178,10 +235,31 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         jobTable = createStyledTable(jobTableModel);
-        // Make the # column narrow
         jobTable.getColumnModel().getColumn(0).setMaxWidth(40);
         JScrollPane sp = new JScrollPane(jobTable);
-        sp.setPreferredSize(new Dimension(0, 120));
+        sp.setPreferredSize(new Dimension(0, 100));
+        sp.getViewport().setBackground(BG_TABLE);
+        sp.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
+        panel.add(sp, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel buildSubTaskPanel() {
+        JPanel panel = createStyledPanel("Sub-Tasks Processed (Worker View)");
+
+        lblSubTaskCount = createKeyLabel("Sub-tasks: 0");
+        lblSubTaskCount.setForeground(ACCENT_WORKER);
+        panel.add(lblSubTaskCount, BorderLayout.NORTH);
+
+        String[] cols = {"#", "Sub-Task ID", "Type", "Duration (ms)", "Time"};
+        subTaskTableModel = new DefaultTableModel(cols, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        subTaskTable = createStyledTable(subTaskTableModel);
+        subTaskTable.getColumnModel().getColumn(0).setMaxWidth(40);
+        JScrollPane sp = new JScrollPane(subTaskTable);
+        sp.setPreferredSize(new Dimension(0, 100));
         sp.getViewport().setBackground(BG_TABLE);
         sp.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
         panel.add(sp, BorderLayout.CENTER);
@@ -192,7 +270,7 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
     private JPanel buildLogPanel() {
         JPanel panel = createStyledPanel("Event Log");
 
-        taEventLog = new JTextArea(8, 60);
+        taEventLog = new JTextArea(6, 60);
         taEventLog.setEditable(false);
         taEventLog.setFont(new Font("Consolas", Font.PLAIN, 12));
         taEventLog.setBackground(BG_TABLE);
@@ -236,7 +314,7 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
         return panel;
     }
 
-    // ── Styling helpers ──────────────────────────────────────────────
+    // -- Styling helpers --
 
     private JPanel createStyledPanel(String title) {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
@@ -304,7 +382,7 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
         return btn;
     }
 
-    // ── Public setters for control callbacks ─────────────────────────
+    // -- Public setters for control callbacks --
 
     public void setOnForceElection(Runnable callback) {
         this.onForceElection = callback;
@@ -314,7 +392,7 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
         this.onStopNode = callback;
     }
 
-    // ── GridNodeEventListener implementation ─────────────────────────
+    // -- GridNodeEventListener implementation --
 
     @Override
     public void onRoleChanged(String role, String brokerId, String brokerIp, int brokerTcpPort) {
@@ -324,6 +402,11 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
                 lblRole.setForeground(ACCENT_BROKER);
                 lblBrokerInfo.setText("This node (self)");
                 lblBrokerInfo.setForeground(ACCENT_BROKER);
+                // Show broker-specific panels
+                workerPanel.setVisible(true);
+                mobilePanel.setVisible(true);
+                jobPanel.setVisible(true);
+                subTaskPanel.setVisible(true); // also shows embedded worker sub-tasks
             } else {
                 lblRole.setText("WORKER");
                 lblRole.setForeground(ACCENT_WORKER);
@@ -333,6 +416,11 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
                 }
                 lblBrokerInfo.setText(brokerStr);
                 lblBrokerInfo.setForeground(TEXT_PRIMARY);
+                // Show worker-specific panels only
+                workerPanel.setVisible(false);
+                mobilePanel.setVisible(false);
+                jobPanel.setVisible(false);
+                subTaskPanel.setVisible(true);
             }
             appendLog("Role changed: " + role +
                     (brokerId != null ? " (broker=" + brokerId + ")" : ""));
@@ -342,7 +430,6 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
     @Override
     public void onWorkerRegistered(String workerId, String ip, int cores, long memMB) {
         SwingUtilities.invokeLater(() -> {
-            // Check if worker already exists (re-registration)
             for (int i = 0; i < workerTableModel.getRowCount(); i++) {
                 if (workerId.equals(workerTableModel.getValueAt(i, 0))) {
                     workerTableModel.setValueAt(ip, i, 1);
@@ -381,7 +468,6 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
                     jobCounter, shortId, jobType, "PROCESSING", timeFmt.format(new Date())
             });
             lblJobCount.setText("Jobs: " + jobCounter);
-            // Keep only last 50 jobs
             while (jobTableModel.getRowCount() > 50) {
                 jobTableModel.removeRow(jobTableModel.getRowCount() - 1);
             }
@@ -393,7 +479,6 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
     public void onJobCompleted(String jobId, String jobType, String status) {
         SwingUtilities.invokeLater(() -> {
             String shortId = jobId.length() > 8 ? jobId.substring(0, 8) + ".." : jobId;
-            // Find and update the job row
             for (int i = 0; i < jobTableModel.getRowCount(); i++) {
                 String rowId = jobTableModel.getValueAt(i, 1).toString();
                 if (rowId.equals(shortId)) {
@@ -406,6 +491,50 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
     }
 
     @Override
+    public void onMobileClientConnected(String clientIp) {
+        SwingUtilities.invokeLater(() -> {
+            // Check for duplicate
+            for (int i = 0; i < mobileTableModel.getRowCount(); i++) {
+                if (clientIp.equals(mobileTableModel.getValueAt(i, 0))) {
+                    mobileTableModel.setValueAt("CONNECTED", i, 2);
+                    return;
+                }
+            }
+            mobileTableModel.addRow(new Object[]{clientIp, timeFmt.format(new Date()), "CONNECTED"});
+            lblMobileCount.setText("Devices: " + mobileTableModel.getRowCount());
+            appendLog("Mobile device connected: " + clientIp);
+        });
+    }
+
+    @Override
+    public void onMobileClientDisconnected(String clientIp) {
+        SwingUtilities.invokeLater(() -> {
+            for (int i = 0; i < mobileTableModel.getRowCount(); i++) {
+                if (clientIp.equals(mobileTableModel.getValueAt(i, 0))) {
+                    mobileTableModel.setValueAt("DISCONNECTED", i, 2);
+                    break;
+                }
+            }
+            appendLog("Mobile device disconnected: " + clientIp);
+        });
+    }
+
+    @Override
+    public void onWorkerJobAssigned(String subTaskId, String jobType, long durationMs) {
+        SwingUtilities.invokeLater(() -> {
+            subTaskCounter++;
+            String shortId = subTaskId.length() > 12 ? subTaskId.substring(0, 12) + ".." : subTaskId;
+            subTaskTableModel.insertRow(0, new Object[]{
+                    subTaskCounter, shortId, jobType, durationMs, timeFmt.format(new Date())
+            });
+            lblSubTaskCount.setText("Sub-tasks: " + subTaskCounter);
+            while (subTaskTableModel.getRowCount() > 100) {
+                subTaskTableModel.removeRow(subTaskTableModel.getRowCount() - 1);
+            }
+        });
+    }
+
+    @Override
     public void onLogMessage(String message) {
         SwingUtilities.invokeLater(() -> appendLog(message));
     }
@@ -413,7 +542,6 @@ public class GridNodeUI extends JFrame implements GridNodeEventListener {
     private void appendLog(String message) {
         String timestamp = timeFmt.format(new Date());
         taEventLog.append("[" + timestamp + "] " + message + "\n");
-        // Auto-scroll to bottom
         taEventLog.setCaretPosition(taEventLog.getDocument().getLength());
     }
 }
