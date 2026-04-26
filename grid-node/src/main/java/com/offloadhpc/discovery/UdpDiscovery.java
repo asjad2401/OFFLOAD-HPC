@@ -114,38 +114,58 @@ public class UdpDiscovery {
 
     /**
      * Send a message and wait for responses of a specific type.
+     * Uses a separate socket to avoid conflicts with the listener thread.
      * Returns true if at least one matching response was received.
      */
     public boolean sendAndWaitForResponse(String message, String expectedType, long timeoutMs) {
+        // Send via the main socket (shared, write-only here)
         send(message);
-        long deadline = System.currentTimeMillis() + timeoutMs;
-        byte[] buf = new byte[1024];
 
-        while (System.currentTimeMillis() < deadline) {
-            try {
-                int remaining = (int) (deadline - System.currentTimeMillis());
-                if (remaining <= 0)
-                    break;
-                socket.setSoTimeout(remaining);
-
-                DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                socket.receive(packet);
-                String response = new String(packet.getData(), 0, packet.getLength()).trim();
-                if (response.startsWith(expectedType + "|")) {
-                    socket.setSoTimeout(1000); // restore default
-                    return true;
-                }
-            } catch (SocketTimeoutException e) {
-                break;
-            } catch (IOException e) {
-                break;
-            }
-        }
-
+        // Listen for responses on a separate temporary socket to avoid recv conflicts
         try {
-            socket.setSoTimeout(1000);
+            MulticastSocket tempSocket = new MulticastSocket(null);
+            tempSocket.setReuseAddress(true);
+            tempSocket.bind(new java.net.InetSocketAddress(port));
+
+            // Join multicast on all interfaces
+            java.util.Enumeration<java.net.NetworkInterface> interfaces = java.net.NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                java.net.NetworkInterface ni = interfaces.nextElement();
+                try {
+                    if (ni.isUp() && ni.supportsMulticast()) {
+                        tempSocket.joinGroup(new java.net.InetSocketAddress(group, port), ni);
+                    }
+                } catch (Exception e) { /* skip */ }
+            }
+
+            tempSocket.setSoTimeout((int) timeoutMs);
+            byte[] buf = new byte[1024];
+
+            long deadline = System.currentTimeMillis() + timeoutMs;
+            while (System.currentTimeMillis() < deadline) {
+                try {
+                    int remaining = (int) (deadline - System.currentTimeMillis());
+                    if (remaining <= 0) break;
+                    tempSocket.setSoTimeout(remaining);
+
+                    DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                    tempSocket.receive(packet);
+                    String response = new String(packet.getData(), 0, packet.getLength()).trim();
+                    if (response.startsWith(expectedType + "|")) {
+                        tempSocket.close();
+                        return true;
+                    }
+                } catch (SocketTimeoutException e) {
+                    break;
+                } catch (IOException e) {
+                    break;
+                }
+            }
+
+            tempSocket.close();
         } catch (Exception e) {
-            /* ignore */ }
+            System.err.println("[UdpDiscovery] sendAndWaitForResponse error: " + e.getMessage());
+        }
         return false;
     }
 

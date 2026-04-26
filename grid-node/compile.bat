@@ -10,7 +10,7 @@ cd /d "%~dp0"
 if not exist target\classes mkdir target\classes
 
 echo Compiling Grid Node source files...
-javac -cp "lib\json-20231013.jar" -d target\classes ^
+javac -encoding UTF-8 -cp "lib\json-20231013.jar" -d target\classes ^
   src\main\java\com\offloadhpc\contract\WorkerService.java ^
   src\main\java\com\offloadhpc\node\*.java ^
   src\main\java\com\offloadhpc\discovery\*.java ^
@@ -21,7 +21,8 @@ javac -cp "lib\json-20231013.jar" -d target\classes ^
   src\main\java\com\offloadhpc\worker\*.java ^
   src\main\java\com\offloadhpc\worker\compute\*.java ^
   src\main\java\com\offloadhpc\worker\rmi\*.java ^
-  src\main\java\com\offloadhpc\worker\test\*.java
+  src\main\java\com\offloadhpc\worker\test\*.java ^
+  src\main\java\com\offloadhpc\ui\*.java
 
 if %ERRORLEVEL% EQU 0 (
     echo.

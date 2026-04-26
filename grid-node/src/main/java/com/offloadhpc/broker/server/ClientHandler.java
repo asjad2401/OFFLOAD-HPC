@@ -4,6 +4,7 @@ import com.offloadhpc.broker.model.SubTask;
 import com.offloadhpc.broker.registry.NodeRegistry;
 import com.offloadhpc.broker.scheduler.AsyncScheduler;
 import com.offloadhpc.broker.scheduler.JobPartitioner;
+import com.offloadhpc.ui.GridNodeEventListener;
 
 import org.json.JSONObject;
 
@@ -26,13 +27,16 @@ public class ClientHandler implements Runnable {
     private final NodeRegistry registry;
     private final JobPartitioner partitioner;
     private final AsyncScheduler scheduler;
+    private final GridNodeEventListener eventListener;
 
     public ClientHandler(Socket socket, NodeRegistry registry,
-            JobPartitioner partitioner, AsyncScheduler scheduler) {
+            JobPartitioner partitioner, AsyncScheduler scheduler,
+            GridNodeEventListener eventListener) {
         this.socket = socket;
         this.registry = registry;
         this.partitioner = partitioner;
         this.scheduler = scheduler;
+        this.eventListener = eventListener;
     }
 
     @Override
@@ -129,6 +133,10 @@ public class ClientHandler implements Runnable {
 
         System.out.println("[ClientHandler] Job received: " + jobType + " (id=" + jobId + ")");
 
+        if (eventListener != null) {
+            eventListener.onJobReceived(jobId, jobType);
+        }
+
         try {
             List<SubTask> subTasks;
 
@@ -138,6 +146,7 @@ public class ClientHandler implements Runnable {
                     sendJobAck(writer, jobId, subTasks.size());
                     int matrixSize = payload.getInt("matrixSize");
                     scheduler.dispatchMatMul(jobId, subTasks, matrixSize, writer);
+                    if (eventListener != null) eventListener.onJobCompleted(jobId, jobType, "SUCCESS");
                     break;
 
                 case "HASH_CRACK":
@@ -145,6 +154,7 @@ public class ClientHandler implements Runnable {
                     sendJobAck(writer, jobId, subTasks.size());
                     String algorithm = payload.getString("algorithm");
                     scheduler.dispatchHashCrack(jobId, subTasks, algorithm, writer);
+                    if (eventListener != null) eventListener.onJobCompleted(jobId, jobType, "SUCCESS");
                     break;
 
                 case "IMAGE_PROC":
@@ -153,6 +163,7 @@ public class ClientHandler implements Runnable {
                     int width = payload.getInt("width");
                     int height = payload.getInt("height");
                     scheduler.dispatchImageProc(jobId, subTasks, width, height, writer);
+                    if (eventListener != null) eventListener.onJobCompleted(jobId, jobType, "SUCCESS");
                     break;
 
                 case "KMEANS":
@@ -168,6 +179,7 @@ public class ClientHandler implements Runnable {
                     sendJobAck(writer, jobId, iterations);
                     scheduler.dispatchKMeans(jobId, subTasks, iterations, K, dims,
                             initialCentroids, partitioner, payload, writer);
+                    if (eventListener != null) eventListener.onJobCompleted(jobId, jobType, "SUCCESS");
                     break;
 
                 default:
@@ -178,6 +190,8 @@ public class ClientHandler implements Runnable {
         } catch (Exception e) {
             System.err.println("[ClientHandler] Failed to process job " + jobId + ": " + e.getMessage());
             e.printStackTrace();
+
+            if (eventListener != null) eventListener.onJobCompleted(jobId, jobType, "FAILED");
 
             JSONObject error = new JSONObject();
             error.put("type", "JOB_RESULT");

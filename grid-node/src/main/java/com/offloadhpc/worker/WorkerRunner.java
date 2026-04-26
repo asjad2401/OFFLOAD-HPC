@@ -82,42 +82,56 @@ public class WorkerRunner {
 
     /**
      * Register this worker with the Broker over TCP, including capability info.
+     * Retries up to 3 times with 2s backoff for LAN timing windows.
      */
     private void registerWithBroker(String localIp) {
         Runtime rt = Runtime.getRuntime();
         int cpuCores = rt.availableProcessors();
         long memMB = rt.maxMemory() / (1024 * 1024);
 
-        try (Socket socket = new Socket(brokerHost, brokerPort);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+        int maxRetries = 3;
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try (Socket socket = new Socket(brokerHost, brokerPort);
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            String registerMsg = "{"
-                    + "\"type\":\"WORKER_REGISTER\","
-                    + "\"workerId\":\"" + workerId + "\","
-                    + "\"ip\":\"" + localIp + "\","
-                    + "\"rmiPort\":" + rmiPort + ","
-                    + "\"cpuCores\":" + cpuCores + ","
-                    + "\"availableMemoryMB\":" + memMB
-                    + "}";
+                String registerMsg = "{"
+                        + "\"type\":\"WORKER_REGISTER\","
+                        + "\"workerId\":\"" + workerId + "\","
+                        + "\"ip\":\"" + localIp + "\","
+                        + "\"rmiPort\":" + rmiPort + ","
+                        + "\"cpuCores\":" + cpuCores + ","
+                        + "\"availableMemoryMB\":" + memMB
+                        + "}";
 
-            out.println(registerMsg);
-            out.flush();
-            System.out.println("[Worker " + workerId + "] Sent WORKER_REGISTER to " +
-                    brokerHost + ":" + brokerPort + " (cores=" + cpuCores + ", memMB=" + memMB + ")");
+                out.println(registerMsg);
+                out.flush();
+                System.out.println("[Worker " + workerId + "] Sent WORKER_REGISTER to " +
+                        brokerHost + ":" + brokerPort + " (cores=" + cpuCores + ", memMB=" + memMB + ")");
 
-            String response = in.readLine();
-            if (response != null && response.contains("\"REGISTERED\"")) {
-                System.out.println("[Worker " + workerId + "] Successfully registered with Broker.");
-            } else {
-                System.err.println("[Worker " + workerId + "] Unexpected response: " + response);
+                String response = in.readLine();
+                if (response != null && response.contains("\"REGISTERED\"")) {
+                    System.out.println("[Worker " + workerId + "] Successfully registered with Broker.");
+                    return; // success
+                } else {
+                    System.err.println("[Worker " + workerId + "] Unexpected response: " + response);
+                }
+            } catch (Exception e) {
+                System.err.println("[Worker " + workerId + "] Registration attempt " + attempt + "/" + maxRetries +
+                        " failed: " + e.getMessage());
+                if (attempt < maxRetries) {
+                    try {
+                        Thread.sleep(2000); // 2s backoff
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
             }
-        } catch (Exception e) {
-            System.err.println("[Worker " + workerId + "] Failed to register with Broker at " +
-                    brokerHost + ":" + brokerPort + " — " + e.getMessage());
-            System.err.println("[Worker " + workerId + "] Worker will continue running. " +
-                    "Registration can be reattempted.");
         }
+
+        System.err.println("[Worker " + workerId + "] Failed to register after " + maxRetries + " attempts. " +
+                "Worker will continue running. Registration can be reattempted.");
     }
 
     /**

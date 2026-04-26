@@ -3,6 +3,7 @@ package com.offloadhpc.broker.server;
 import com.offloadhpc.broker.registry.NodeRegistry;
 import com.offloadhpc.broker.scheduler.AsyncScheduler;
 import com.offloadhpc.broker.scheduler.JobPartitioner;
+import com.offloadhpc.ui.GridNodeEventListener;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -23,12 +24,17 @@ public class BrokerServer {
     private final AsyncScheduler scheduler;
     private volatile boolean running = false;
     private ServerSocket serverSocket;
+    private GridNodeEventListener eventListener;
 
     public BrokerServer(int port, NodeRegistry registry) {
         this.port = port;
         this.registry = registry;
         this.partitioner = new JobPartitioner(registry);
         this.scheduler = new AsyncScheduler(registry);
+    }
+
+    public void setEventListener(GridNodeEventListener listener) {
+        this.eventListener = listener;
     }
 
     /**
@@ -50,7 +56,7 @@ public class BrokerServer {
                         clientSocket.getPort());
 
                 ClientHandler handler = new ClientHandler(
-                        clientSocket, registry, partitioner, scheduler);
+                        clientSocket, registry, partitioner, scheduler, eventListener);
                 new Thread(handler, "ClientHandler-" + clientSocket.getPort()).start();
             }
         } catch (IOException e) {

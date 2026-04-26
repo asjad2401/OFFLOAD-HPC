@@ -4,8 +4,11 @@ import com.offloadhpc.broker.registry.NodeRegistry;
 import com.offloadhpc.broker.server.BrokerServer;
 import com.offloadhpc.discovery.BullyElection;
 import com.offloadhpc.discovery.UdpDiscovery;
+import com.offloadhpc.ui.GridNodeEventListener;
+import com.offloadhpc.ui.GridNodeUI;
 import com.offloadhpc.worker.WorkerRunner;
 
+import javax.swing.*;
 import java.net.InetAddress;
 
 /**
@@ -19,11 +22,12 @@ import java.net.InetAddress;
  *
  * On broker failure → re-election triggers automatically.
  *
- * Usage: java GridNode <nodeId> [priority] [tcpPort] [rmiPort]
+ * Usage: java GridNode <nodeId> [priority] [tcpPort] [rmiPort] [--headless]
  * nodeId - unique node identifier (e.g. n1, n2)
  * priority - election priority (higher wins). Default: hash of nodeId
  * tcpPort - TCP port for broker role. Default: 9000
  * rmiPort - RMI port for worker role. Default: 1099
+ * --headless - disable Swing UI, CLI only
  */
 public class GridNode {
 
@@ -34,12 +38,27 @@ public class GridNode {
     private BrokerServer brokerServer;
     private WorkerRunner workerRunner;
 
+    // Optional event listener (UI or null for headless)
+    private GridNodeEventListener eventListener;
+
     public GridNode(NodeConfig config) {
         this.config = config;
         this.udp = new UdpDiscovery(config.getMulticastGroup(), config.getMulticastPort());
         this.election = new BullyElection(
                 config.getNodeId(), config.getPriority(),
                 config.getTcpPort(), udp);
+    }
+
+    public void setEventListener(GridNodeEventListener listener) {
+        this.eventListener = listener;
+    }
+
+    public BullyElection getElection() {
+        return election;
+    }
+
+    public BrokerServer getBrokerServer() {
+        return brokerServer;
     }
 
     /**
@@ -57,6 +76,10 @@ public class GridNode {
         String localIp = InetAddress.getLocalHost().getHostAddress();
         System.out.println("[GridNode] Local IP: " + localIp);
 
+        if (eventListener != null) {
+            eventListener.onLogMessage("GridNode starting on " + localIp);
+        }
+
         // 1. Start UDP discovery listener
         udp.startListening(message -> election.handleMessage(message));
         System.out.println("[GridNode] UDP discovery started");
@@ -69,22 +92,34 @@ public class GridNode {
             @Override
             public void onElectedAsBroker() {
                 startAsBroker(localIp);
+                if (eventListener != null) {
+                    eventListener.onRoleChanged("BROKER", config.getNodeId(), localIp, config.getTcpPort());
+                }
             }
 
             @Override
             public void onBrokerDiscovered(String brokerId, String brokerIp, int brokerTcpPort) {
-                // Get broker IP from heartbeat or use localIp for same-machine testing
-                String effectiveBrokerIp = election.getCurrentBrokerIp();
-                if (effectiveBrokerIp == null) {
-                    effectiveBrokerIp = localIp; // fallback for same-machine
+                // Use the actual broker IP from the COORDINATOR message
+                if (brokerIp == null || brokerIp.isEmpty()) {
+                    // Fallback: try getting it from election state or use localIp
+                    brokerIp = election.getCurrentBrokerIp();
+                    if (brokerIp == null) {
+                        brokerIp = localIp; // last resort for same-machine testing
+                    }
                 }
-                startAsWorker(effectiveBrokerIp, brokerTcpPort);
+                startAsWorker(brokerIp, brokerTcpPort);
+                if (eventListener != null) {
+                    eventListener.onRoleChanged("WORKER", brokerId, brokerIp, brokerTcpPort);
+                }
             }
 
             @Override
             public void onBrokerLost() {
                 System.out.println("[GridNode] Broker lost! Stopping current worker...");
                 stopWorker();
+                if (eventListener != null) {
+                    eventListener.onLogMessage("⚠ Broker lost! Re-election starting...");
+                }
                 // Re-election will be triggered by BullyElection
             }
         });
@@ -109,7 +144,12 @@ public class GridNode {
             Thread.sleep(1000); // let ports release
 
             NodeRegistry registry = new NodeRegistry();
+            // Wire registry to the UI event listener
+            registry.setEventListener(eventListener);
+
             brokerServer = new BrokerServer(config.getTcpPort(), registry);
+            // Wire broker server to the UI event listener
+            brokerServer.setEventListener(eventListener);
 
             // Start broker server in background thread
             Thread brokerThread = new Thread(() -> brokerServer.start(), "BrokerServer");
@@ -169,8 +209,11 @@ public class GridNode {
     /**
      * Graceful shutdown.
      */
-    private void shutdown() {
+    public void shutdown() {
         System.out.println("[GridNode] Shutting down...");
+        if (eventListener != null) {
+            eventListener.onLogMessage("Node shutting down...");
+        }
         election.shutdown();
         udp.stop();
         if (workerRunner != null)
@@ -183,15 +226,17 @@ public class GridNode {
 
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.err.println("Usage: GridNode <nodeId> [priority] [tcpPort] [rmiPort]");
+            System.err.println("Usage: GridNode <nodeId> [priority] [tcpPort] [rmiPort] [--headless]");
             System.err.println("  nodeId   - unique node identifier (e.g. n1, n2)");
             System.err.println("  priority - election priority, higher wins (default: hash of nodeId)");
             System.err.println("  tcpPort  - TCP port for broker role (default: 9000)");
             System.err.println("  rmiPort  - RMI port for worker role (default: 1099)");
+            System.err.println("  --headless - run without GUI (CLI only)");
             System.err.println();
             System.err.println("Examples:");
             System.err.println("  GridNode n1 10");
             System.err.println("  GridNode n2 5 9000 1100");
+            System.err.println("  GridNode n1 10 9000 1099 --headless");
             System.exit(1);
         }
 
@@ -200,10 +245,44 @@ public class GridNode {
         int tcpPort = args.length > 2 ? Integer.parseInt(args[2]) : 9000;
         int rmiPort = args.length > 3 ? Integer.parseInt(args[3]) : 1099;
 
+        // Check for --headless flag
+        boolean headless = false;
+        for (String arg : args) {
+            if ("--headless".equalsIgnoreCase(arg) || "--no-ui".equalsIgnoreCase(arg)) {
+                headless = true;
+                break;
+            }
+        }
+
         NodeConfig config = new NodeConfig(nodeId, priority, tcpPort, rmiPort);
+        GridNode node = new GridNode(config);
+
+        if (!headless) {
+            // Use default cross-platform LAF (Metal) — it respects custom colors
+            // Windows native LAF ignores setBackground/setForeground on buttons
+
+            // Launch UI on EDT
+            String localIp;
+            try {
+                localIp = InetAddress.getLocalHost().getHostAddress();
+            } catch (Exception e) {
+                localIp = "unknown";
+            }
+
+            final String ip = localIp;
+            SwingUtilities.invokeLater(() -> {
+                GridNodeUI ui = new GridNodeUI(nodeId, priority, tcpPort, rmiPort, ip);
+                node.setEventListener(ui);
+
+                // Wire control callbacks
+                ui.setOnForceElection(() -> node.getElection().forceElection());
+                ui.setOnStopNode(() -> node.shutdown());
+
+                ui.setVisible(true);
+            });
+        }
 
         try {
-            GridNode node = new GridNode(config);
             node.start();
         } catch (Exception e) {
             System.err.println("[GridNode] Fatal error: " + e.getMessage());

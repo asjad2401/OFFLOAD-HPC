@@ -1,9 +1,11 @@
 package com.offloadhpc.broker.registry;
 
 import com.offloadhpc.contract.WorkerService;
+import com.offloadhpc.ui.GridNodeEventListener;
 
 import java.rmi.Naming;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +26,7 @@ public class NodeRegistry {
 
     private final ConcurrentHashMap<String, WorkerInfo> registry = new ConcurrentHashMap<>();
     private final ScheduledExecutorService evictionScheduler;
+    private GridNodeEventListener eventListener;
 
     public NodeRegistry() {
         // Start heartbeat eviction thread
@@ -36,6 +39,10 @@ public class NodeRegistry {
                 EVICTION_CHECK_INTERVAL_MS, EVICTION_CHECK_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 
+    public void setEventListener(GridNodeEventListener listener) {
+        this.eventListener = listener;
+    }
+
     /**
      * Register a worker (or update its info if re-registering).
      */
@@ -43,6 +50,9 @@ public class NodeRegistry {
         WorkerInfo info = new WorkerInfo(workerId, ip, rmiPort);
         registry.put(workerId, info);
         System.out.println("[Registry] Worker registered: " + info);
+        if (eventListener != null) {
+            eventListener.onWorkerRegistered(workerId, ip, info.getCpuCores(), info.getAvailableMemoryMB());
+        }
     }
 
     /**
@@ -53,6 +63,9 @@ public class NodeRegistry {
         WorkerInfo info = new WorkerInfo(workerId, ip, rmiPort, cpuCores, availableMemoryMB);
         registry.put(workerId, info);
         System.out.println("[Registry] Worker registered: " + info);
+        if (eventListener != null) {
+            eventListener.onWorkerRegistered(workerId, ip, cpuCores, availableMemoryMB);
+        }
     }
 
     /**
@@ -163,8 +176,18 @@ public class NodeRegistry {
                 it.remove();
                 System.out.println("[Registry] EVICTED stale worker: " + w.getWorkerId() +
                         " (last heartbeat " + (age / 1000) + "s ago)");
+                if (eventListener != null) {
+                    eventListener.onWorkerLost(w.getWorkerId());
+                }
             }
         }
+    }
+
+    /**
+     * Return all registered workers.
+     */
+    public Collection<WorkerInfo> getAllWorkers() {
+        return registry.values();
     }
 
     /**
