@@ -46,7 +46,7 @@ The system consists of two main components:
 
 The easiest way to run a node is using the pre-packaged executable JAR.
 
-1.  Navigate to the release directory (e.g., `release/V2/`).
+1.  Navigate to the release directory (`release/V2/`).
 2.  Ensure you have the following two files in the same folder:
     *   `OFFLOAD-HPC.jar`
     *   `start-grid-node.bat` (Windows)
@@ -62,7 +62,7 @@ java -jar OFFLOAD-HPC.jar <NodeID> <Priority>
 
 ### Running the Android App
 
-1.  Install the `app-debug.apk` on your Android device.
+1.  Install the `app-debug.apk` on your Android device. (In folder android-app/app/build/outputs/apk/debug/app-debug.apk)
 2.  Ensure your phone is connected to the same Wi-Fi network as your Grid Nodes.
 3.  Open the app. It will automatically broadcast a discovery request and connect to the active Broker.
 4.  Select a workload tab (e.g., Image Proc), configure the settings, and tap **Submit**.
