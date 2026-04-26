@@ -16,8 +16,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.offloadhpc.mobile.R;
+import com.offloadhpc.mobile.compute.LocalCompute;
+import com.offloadhpc.mobile.ui.ImageProcFragment;
 import com.offloadhpc.mobile.network.MessageListener;
 import com.offloadhpc.mobile.network.SocketClient;
+
+import java.util.List;
 
 /**
  * Displays real-time progress of a submitted job and shows the
@@ -39,6 +43,8 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
     private ImageView ivResultImage;
 
     private long startTime;
+    private Double localProcessingSeconds = null;
+    private String gridResultText = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +89,23 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
 
         // ── Register for incoming messages ──────────────────────────
         SocketClient.getInstance().setMessageListener(this);
+
+        // ── Start simulated local compute for comparison ─────────────
+        if ("IMAGE_PROC".equals(jobType)) {
+            final List<Integer> pixels = ImageProcFragment.currentPixelData;
+            final String operation = ImageProcFragment.currentOperation;
+            final int width = getIntent().getIntExtra("imageWidth", 32);
+            final int height = getIntent().getIntExtra("imageHeight", 32);
+            if (pixels != null && operation != null) {
+                new Thread(() -> {
+                    double time = LocalCompute.runLocalImageProc(pixels, width, height, operation);
+                    runOnUiThread(() -> {
+                        localProcessingSeconds = time;
+                        updateImageProcUIAfterBoth();
+                    });
+                }).start();
+            }
+        }
     }
 
     @Override
@@ -231,13 +254,41 @@ public class ProgressActivity extends AppCompatActivity implements MessageListen
                             .append("s\n\n");
                     sb.append("Dimensions: ").append(width).append(" × ").append(height).append("\n");
 
-                    tvResult.setText(sb.toString());
+                    gridResultText = sb.toString();
+                    updateImageProcUIAfterBoth();
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> tvResult
                         .setText("Image processing result received but could not parse:\n" + e.getMessage()));
             }
         }).start();
+    }
+
+    private void updateImageProcUIAfterBoth() {
+        if (gridResultText == null) {
+            // UI will wait until Grid is done to show the final side-by-side
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(gridResultText);
+
+        if (localProcessingSeconds != null) {
+            sb.append("\n📱 Local Mobile Compute Time: ").append(String.format("%.2f", localProcessingSeconds))
+                    .append("s\n");
+
+            double gridSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
+            if (localProcessingSeconds > gridSeconds) {
+                double speedup = localProcessingSeconds / gridSeconds;
+                // Don't show extreme speedups for tiny operations, only if it's meaningful
+                if (localProcessingSeconds > 0.1) {
+                    sb.append("\n⚡ Grid was ").append(String.format("%.1f", speedup)).append("x faster!");
+                }
+            }
+        } else {
+            sb.append("\n📱 Local Mobile Compute is still running... (heavy CPU load)\n");
+        }
+        tvResult.setText(sb.toString());
     }
 
     private void displayKMeansResult(String resultJson) {

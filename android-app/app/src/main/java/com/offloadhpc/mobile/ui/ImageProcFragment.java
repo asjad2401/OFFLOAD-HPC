@@ -44,6 +44,10 @@ public class ImageProcFragment extends Fragment {
     private ImageView ivPreview;
     private Bitmap selectedBitmap;
 
+    // Temporary storage for ProgressActivity to run a local speed comparison
+    public static List<Integer> currentPixelData;
+    public static String currentOperation;
+
     private final ActivityResultLauncher<String> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.GetContent(), uri -> {
                 if (uri != null) {
@@ -138,10 +142,16 @@ public class ImageProcFragment extends Fragment {
 
         SocketClient.getInstance().sendJob(request);
 
+        // Store globally for local speed comparison
+        currentPixelData = pixelData;
+        currentOperation = operation;
+
         // Navigate to Progress screen
         Intent intent = new Intent(requireContext(), ProgressActivity.class);
         intent.putExtra("jobId", jobId);
         intent.putExtra("jobType", "IMAGE_PROC");
+        intent.putExtra("imageWidth", width);
+        intent.putExtra("imageHeight", height);
         startActivity(intent);
     }
 
