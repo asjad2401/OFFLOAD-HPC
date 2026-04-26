@@ -62,7 +62,7 @@ java -jar OFFLOAD-HPC.jar <NodeID> <Priority>
 
 ### Running the Android App
 
-1.  Install the `app-debug.apk` on your Android device. (In folder android-app/app/build/outputs/apk/debug/app-debug.apk)
+1.  Install the `app-debug.apk` on your Android device. (In folder: `android-app/app/build/outputs/apk/debug/app-debug.apk`)
 2.  Ensure your phone is connected to the same Wi-Fi network as your Grid Nodes.
 3.  Open the app. It will automatically broadcast a discovery request and connect to the active Broker.
 4.  Select a workload tab (e.g., Image Proc), configure the settings, and tap **Submit**.
