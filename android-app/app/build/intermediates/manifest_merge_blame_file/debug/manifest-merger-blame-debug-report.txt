@@ -14,125 +14,239 @@
 12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 12-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:5:5-79
 12-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:5:22-76
-13
-14    <permission
-14-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\f0f4ee7c3b88100b2d2cd4b05ab423cd\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
-15        android:name="com.offloadhpc.mobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-15-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\f0f4ee7c3b88100b2d2cd4b05ab423cd\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
-16        android:protectionLevel="signature" />
-16-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\f0f4ee7c3b88100b2d2cd4b05ab423cd\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
-17
-18    <uses-permission android:name="com.offloadhpc.mobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-18-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\f0f4ee7c3b88100b2d2cd4b05ab423cd\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
-18-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\f0f4ee7c3b88100b2d2cd4b05ab423cd\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
-19
-20    <application
-20-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:7:5-28:19
-21        android:allowBackup="true"
-21-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:8:9-35
-22        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-22-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\f0f4ee7c3b88100b2d2cd4b05ab423cd\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
-23        android:debuggable="true"
-24        android:extractNativeLibs="false"
-25        android:icon="@drawable/ic_launcher"
-25-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:9:9-45
-26        android:label="@string/app_name"
-26-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:10:9-41
-27        android:supportsRtl="true"
-27-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:12:9-35
-28        android:theme="@style/Theme.OffloadHPC" >
-28-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:11:9-48
-29        <activity
-29-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:14:9-21:20
-30            android:name="com.offloadhpc.mobile.ui.MainActivity"
-30-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:15:13-44
-31            android:exported="true" >
-31-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:16:13-36
-32            <intent-filter>
-32-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:17:13-20:29
-33                <action android:name="android.intent.action.MAIN" />
-33-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:18:17-69
-33-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:18:25-66
-34
-35                <category android:name="android.intent.category.LAUNCHER" />
-35-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:19:17-77
-35-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:19:27-74
-36            </intent-filter>
-37        </activity>
-38        <activity
-38-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:23:9-26:61
-39            android:name="com.offloadhpc.mobile.ui.ProgressActivity"
-39-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:24:13-48
-40            android:exported="false"
-40-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:25:13-37
-41            android:parentActivityName="com.offloadhpc.mobile.ui.MainActivity" />
-41-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:26:13-58
-42
-43        <provider
-43-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\4cbcf27c467347a1a697d011e0391f2d\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
-44            android:name="androidx.startup.InitializationProvider"
-44-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\4cbcf27c467347a1a697d011e0391f2d\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
-45            android:authorities="com.offloadhpc.mobile.androidx-startup"
-45-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\4cbcf27c467347a1a697d011e0391f2d\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
-46            android:exported="false" >
-46-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\4cbcf27c467347a1a697d011e0391f2d\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
-47            <meta-data
-47-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\4cbcf27c467347a1a697d011e0391f2d\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
-48                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-48-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\4cbcf27c467347a1a697d011e0391f2d\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
-49                android:value="androidx.startup" />
-49-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\4cbcf27c467347a1a697d011e0391f2d\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
-50            <meta-data
-50-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\masja\.gradle\caches\transforms-3\d1c1e0b187f385ec39da9225d1799ef7\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
-51                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-51-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\masja\.gradle\caches\transforms-3\d1c1e0b187f385ec39da9225d1799ef7\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
-52                android:value="androidx.startup" />
-52-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\masja\.gradle\caches\transforms-3\d1c1e0b187f385ec39da9225d1799ef7\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
-53            <meta-data
-53-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
-54                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-54-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
-55                android:value="androidx.startup" />
-55-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
-56        </provider>
-57
-58        <receiver
-58-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
-59            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-59-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
-60            android:directBootAware="false"
-60-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
-61            android:enabled="true"
-61-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
-62            android:exported="true"
-62-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
-63            android:permission="android.permission.DUMP" >
-63-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
-64            <intent-filter>
-64-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
-65                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-65-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
-65-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
-66            </intent-filter>
-67            <intent-filter>
-67-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
-68                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-68-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
-68-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
-69            </intent-filter>
-70            <intent-filter>
-70-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
-71                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-71-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
-71-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
-72            </intent-filter>
-73            <intent-filter>
-73-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
-74                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-74-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
-74-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\9cc5a4a18c45fd86efd7331730c4561d\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
-75            </intent-filter>
-76        </receiver>
-77    </application>
+13    <uses-permission android:name="android.permission.WAKE_LOCK" />
+13-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:24:5-68
+13-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:24:22-65
+14    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+14-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:25:5-79
+14-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:25:22-76
+15    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" />
+15-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:26:5-88
+15-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:26:22-85
+16    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" />
+16-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:27:5-82
+16-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:27:22-79
+17    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE" />
+17-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:26:5-110
+17-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:26:22-107
+18
+19    <permission
+19-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\5434489249761c2c0f9462a76ee2c176\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
+20        android:name="com.offloadhpc.mobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+20-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\5434489249761c2c0f9462a76ee2c176\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
+21        android:protectionLevel="signature" />
+21-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\5434489249761c2c0f9462a76ee2c176\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
+22
+23    <uses-permission android:name="com.offloadhpc.mobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+23-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\5434489249761c2c0f9462a76ee2c176\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
+23-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\5434489249761c2c0f9462a76ee2c176\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
+24
+25    <application
+25-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:7:5-28:19
+26        android:allowBackup="true"
+26-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:8:9-35
+27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+27-->[androidx.core:core:1.9.0] C:\Users\masja\.gradle\caches\transforms-3\5434489249761c2c0f9462a76ee2c176\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
+28        android:debuggable="true"
+29        android:extractNativeLibs="false"
+30        android:icon="@drawable/ic_launcher"
+30-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:9:9-45
+31        android:label="@string/app_name"
+31-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:10:9-41
+32        android:supportsRtl="true"
+32-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:12:9-35
+33        android:theme="@style/Theme.OffloadHPC" >
+33-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:11:9-48
+34        <activity
+34-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:14:9-21:20
+35            android:name="com.offloadhpc.mobile.ui.MainActivity"
+35-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:15:13-44
+36            android:exported="true" >
+36-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:16:13-36
+37            <intent-filter>
+37-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:17:13-20:29
+38                <action android:name="android.intent.action.MAIN" />
+38-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:18:17-69
+38-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:18:25-66
+39
+40                <category android:name="android.intent.category.LAUNCHER" />
+40-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:19:17-77
+40-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:19:27-74
+41            </intent-filter>
+42        </activity>
+43        <activity
+43-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:23:9-26:61
+44            android:name="com.offloadhpc.mobile.ui.ProgressActivity"
+44-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:24:13-48
+45            android:exported="false"
+45-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:25:13-37
+46            android:parentActivityName="com.offloadhpc.mobile.ui.MainActivity" />
+46-->C:\Users\masja\OneDrive\Desktop\HPC\android-app\app\src\main\AndroidManifest.xml:26:13-58
+47
+48        <service
+48-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:30:9-36:19
+49            android:name="com.google.firebase.components.ComponentDiscoveryService"
+49-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:31:13-84
+50            android:directBootAware="true"
+50-->[com.google.firebase:firebase-common:22.0.1] C:\Users\masja\.gradle\caches\transforms-3\7a8f1260063a307afa031e1634761b3d\transformed\firebase-common-22.0.1\AndroidManifest.xml:32:13-43
+51            android:exported="false" >
+51-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:32:13-37
+52            <meta-data
+52-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:33:13-35:85
+53                android:name="com.google.firebase.components:com.google.firebase.analytics.connector.internal.AnalyticsConnectorRegistrar"
+53-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:34:17-139
+54                android:value="com.google.firebase.components.ComponentRegistrar" />
+54-->[com.google.android.gms:play-services-measurement-api:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\a6daa6b3e4216d2b3ed9eadf17bf78ec\transformed\play-services-measurement-api-23.2.0\AndroidManifest.xml:35:17-82
+55            <meta-data
+55-->[com.google.firebase:firebase-installations:19.1.0] C:\Users\masja\.gradle\caches\transforms-3\57710dfb6a0afb9096deb07a8964cc34\transformed\firebase-installations-19.1.0\AndroidManifest.xml:15:13-17:85
+56                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsKtxRegistrar"
+56-->[com.google.firebase:firebase-installations:19.1.0] C:\Users\masja\.gradle\caches\transforms-3\57710dfb6a0afb9096deb07a8964cc34\transformed\firebase-installations-19.1.0\AndroidManifest.xml:16:17-130
+57                android:value="com.google.firebase.components.ComponentRegistrar" />
+57-->[com.google.firebase:firebase-installations:19.1.0] C:\Users\masja\.gradle\caches\transforms-3\57710dfb6a0afb9096deb07a8964cc34\transformed\firebase-installations-19.1.0\AndroidManifest.xml:17:17-82
+58            <meta-data
+58-->[com.google.firebase:firebase-installations:19.1.0] C:\Users\masja\.gradle\caches\transforms-3\57710dfb6a0afb9096deb07a8964cc34\transformed\firebase-installations-19.1.0\AndroidManifest.xml:18:13-20:85
+59                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar"
+59-->[com.google.firebase:firebase-installations:19.1.0] C:\Users\masja\.gradle\caches\transforms-3\57710dfb6a0afb9096deb07a8964cc34\transformed\firebase-installations-19.1.0\AndroidManifest.xml:19:17-127
+60                android:value="com.google.firebase.components.ComponentRegistrar" />
+60-->[com.google.firebase:firebase-installations:19.1.0] C:\Users\masja\.gradle\caches\transforms-3\57710dfb6a0afb9096deb07a8964cc34\transformed\firebase-installations-19.1.0\AndroidManifest.xml:20:17-82
+61            <meta-data
+61-->[com.google.firebase:firebase-common:22.0.1] C:\Users\masja\.gradle\caches\transforms-3\7a8f1260063a307afa031e1634761b3d\transformed\firebase-common-22.0.1\AndroidManifest.xml:35:13-37:85
+62                android:name="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar"
+62-->[com.google.firebase:firebase-common:22.0.1] C:\Users\masja\.gradle\caches\transforms-3\7a8f1260063a307afa031e1634761b3d\transformed\firebase-common-22.0.1\AndroidManifest.xml:36:17-109
+63                android:value="com.google.firebase.components.ComponentRegistrar" />
+63-->[com.google.firebase:firebase-common:22.0.1] C:\Users\masja\.gradle\caches\transforms-3\7a8f1260063a307afa031e1634761b3d\transformed\firebase-common-22.0.1\AndroidManifest.xml:37:17-82
+64        </service>
+65
+66        <provider
+66-->[com.google.firebase:firebase-common:22.0.1] C:\Users\masja\.gradle\caches\transforms-3\7a8f1260063a307afa031e1634761b3d\transformed\firebase-common-22.0.1\AndroidManifest.xml:23:9-28:39
+67            android:name="com.google.firebase.provider.FirebaseInitProvider"
+67-->[com.google.firebase:firebase-common:22.0.1] C:\Users\masja\.gradle\caches\transforms-3\7a8f1260063a307afa031e1634761b3d\transformed\firebase-common-22.0.1\AndroidManifest.xml:24:13-77
+68            android:authorities="com.offloadhpc.mobile.firebaseinitprovider"
+68-->[com.google.firebase:firebase-common:22.0.1] C:\Users\masja\.gradle\caches\transforms-3\7a8f1260063a307afa031e1634761b3d\transformed\firebase-common-22.0.1\AndroidManifest.xml:25:13-72
+69            android:directBootAware="true"
+69-->[com.google.firebase:firebase-common:22.0.1] C:\Users\masja\.gradle\caches\transforms-3\7a8f1260063a307afa031e1634761b3d\transformed\firebase-common-22.0.1\AndroidManifest.xml:26:13-43
+70            android:exported="false"
+70-->[com.google.firebase:firebase-common:22.0.1] C:\Users\masja\.gradle\caches\transforms-3\7a8f1260063a307afa031e1634761b3d\transformed\firebase-common-22.0.1\AndroidManifest.xml:27:13-37
+71            android:initOrder="100" />
+71-->[com.google.firebase:firebase-common:22.0.1] C:\Users\masja\.gradle\caches\transforms-3\7a8f1260063a307afa031e1634761b3d\transformed\firebase-common-22.0.1\AndroidManifest.xml:28:13-36
+72
+73        <receiver
+73-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:29:9-33:20
+74            android:name="com.google.android.gms.measurement.AppMeasurementReceiver"
+74-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:30:13-85
+75            android:enabled="true"
+75-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:31:13-35
+76            android:exported="false" >
+76-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:32:13-37
+77        </receiver>
 78
-79</manifest>
+79        <service
+79-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:35:9-38:40
+80            android:name="com.google.android.gms.measurement.AppMeasurementService"
+80-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:36:13-84
+81            android:enabled="true"
+81-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:37:13-35
+82            android:exported="false" />
+82-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:38:13-37
+83        <service
+83-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:39:9-43:72
+84            android:name="com.google.android.gms.measurement.AppMeasurementJobService"
+84-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:40:13-87
+85            android:enabled="true"
+85-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:41:13-35
+86            android:exported="false"
+86-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:42:13-37
+87            android:permission="android.permission.BIND_JOB_SERVICE" />
+87-->[com.google.android.gms:play-services-measurement:23.2.0] C:\Users\masja\.gradle\caches\transforms-3\5b1fb4e7181ea5573e4c96dbb5075d8e\transformed\play-services-measurement-23.2.0\AndroidManifest.xml:43:13-69
+88
+89        <activity
+89-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\masja\.gradle\caches\transforms-3\5255db06db079d34e633d3e35e0a79b1\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:9-173
+90            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+90-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\masja\.gradle\caches\transforms-3\5255db06db079d34e633d3e35e0a79b1\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:19-85
+91            android:exported="false"
+91-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\masja\.gradle\caches\transforms-3\5255db06db079d34e633d3e35e0a79b1\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:146-170
+92            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+92-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\masja\.gradle\caches\transforms-3\5255db06db079d34e633d3e35e0a79b1\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:86-145
+93
+94        <uses-library
+94-->[androidx.privacysandbox.ads:ads-adservices:1.1.0-beta11] C:\Users\masja\.gradle\caches\transforms-3\72cf0454fea761d4dc13454cfbab82a2\transformed\ads-adservices-1.1.0-beta11\AndroidManifest.xml:23:9-25:40
+95            android:name="android.ext.adservices"
+95-->[androidx.privacysandbox.ads:ads-adservices:1.1.0-beta11] C:\Users\masja\.gradle\caches\transforms-3\72cf0454fea761d4dc13454cfbab82a2\transformed\ads-adservices-1.1.0-beta11\AndroidManifest.xml:24:13-50
+96            android:required="false" />
+96-->[androidx.privacysandbox.ads:ads-adservices:1.1.0-beta11] C:\Users\masja\.gradle\caches\transforms-3\72cf0454fea761d4dc13454cfbab82a2\transformed\ads-adservices-1.1.0-beta11\AndroidManifest.xml:25:13-37
+97
+98        <provider
+98-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\5e34e4382410a7d30c0d61b40ca17716\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+99            android:name="androidx.startup.InitializationProvider"
+99-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\5e34e4382410a7d30c0d61b40ca17716\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
+100            android:authorities="com.offloadhpc.mobile.androidx-startup"
+100-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\5e34e4382410a7d30c0d61b40ca17716\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
+101            android:exported="false" >
+101-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\5e34e4382410a7d30c0d61b40ca17716\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
+102            <meta-data
+102-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\5e34e4382410a7d30c0d61b40ca17716\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+103                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+103-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\5e34e4382410a7d30c0d61b40ca17716\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
+104                android:value="androidx.startup" />
+104-->[androidx.emoji2:emoji2:1.2.0] C:\Users\masja\.gradle\caches\transforms-3\5e34e4382410a7d30c0d61b40ca17716\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
+105            <meta-data
+105-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\masja\.gradle\caches\transforms-3\95ff7ae54bc947d3e19a9c6cf029d6a6\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
+106                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+106-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\masja\.gradle\caches\transforms-3\95ff7ae54bc947d3e19a9c6cf029d6a6\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
+107                android:value="androidx.startup" />
+107-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\masja\.gradle\caches\transforms-3\95ff7ae54bc947d3e19a9c6cf029d6a6\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+108            <meta-data
+108-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+109                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+109-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+110                android:value="androidx.startup" />
+110-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+111        </provider>
+112
+113        <meta-data
+113-->[com.google.android.gms:play-services-basement:18.9.0] C:\Users\masja\.gradle\caches\transforms-3\d343be400c43dd79c60face0466cfe2d\transformed\play-services-basement-18.9.0\AndroidManifest.xml:21:9-23:69
+114            android:name="com.google.android.gms.version"
+114-->[com.google.android.gms:play-services-basement:18.9.0] C:\Users\masja\.gradle\caches\transforms-3\d343be400c43dd79c60face0466cfe2d\transformed\play-services-basement-18.9.0\AndroidManifest.xml:22:13-58
+115            android:value="@integer/google_play_services_version" />
+115-->[com.google.android.gms:play-services-basement:18.9.0] C:\Users\masja\.gradle\caches\transforms-3\d343be400c43dd79c60face0466cfe2d\transformed\play-services-basement-18.9.0\AndroidManifest.xml:23:13-66
+116
+117        <receiver
+117-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+118            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+118-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+119            android:directBootAware="false"
+119-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+120            android:enabled="true"
+120-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+121            android:exported="true"
+121-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+122            android:permission="android.permission.DUMP" >
+122-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+123            <intent-filter>
+123-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+124                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+124-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+124-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+125            </intent-filter>
+126            <intent-filter>
+126-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+127                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+127-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+127-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+128            </intent-filter>
+129            <intent-filter>
+129-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+130                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+130-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+130-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+131            </intent-filter>
+132            <intent-filter>
+132-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+133                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+133-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+133-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\masja\.gradle\caches\transforms-3\3502dd17372583919355f80f475159ce\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+134            </intent-filter>
+135        </receiver>
+136    </application>
+137
+138</manifest>

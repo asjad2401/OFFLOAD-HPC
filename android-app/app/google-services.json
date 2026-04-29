@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "138330937314",
+    "project_id": "offload-hpc",
+    "storage_bucket": "offload-hpc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138330937314:android:e8e012848befaf1e6dcbbb",
+        "android_client_info": {
+          "package_name": "com.offloadhpc.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAA_tq5lxZcbNKZS8PAsHr4kj1sUOi5L5k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

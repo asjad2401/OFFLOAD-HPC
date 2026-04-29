@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.offloadhpc.mobile.app-mergeDebugResources-29:/values-v26/values-v26.xml",
+            "outputFile": "com.offloadhpc.mobile.app-mergeDebugResources-35:/values-v26/values-v26.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\masja\\.gradle\\caches\\transforms-3\\3c3e8d87979f80077854f6234c4ddaef\\transformed\\appcompat-1.6.1\\res\\values-v26\\values-v26.xml",
+                    "source": "C:\\Users\\masja\\.gradle\\caches\\transforms-3\\7feb9ad9b554356efd03e753ea6a752f\\transformed\\appcompat-1.6.1\\res\\values-v26\\values-v26.xml",
                     "from": {
                         "startLines": "2,3,4,8,12,16",
                         "startColumns": "4,4,4,4,4,4",
