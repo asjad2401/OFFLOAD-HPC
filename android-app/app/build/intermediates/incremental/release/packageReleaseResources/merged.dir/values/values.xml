@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#000000</color>
+    <color name="colorAccent">#E65100</color>
+    <color name="colorBackground">#FAFAFA</color>
+    <color name="colorPrimary">#1565C0</color>
+    <color name="colorPrimaryDark">#0D47A1</color>
+    <color name="white">#FFFFFF</color>
+    <string name="action_reconnect">Reconnect</string>
+    <string name="app_name">OFFLOAD HPC</string>
+    <string name="gcm_defaultSenderId" translatable="false">138330937314</string>
+    <string name="google_api_key" translatable="false">AIzaSyAA_tq5lxZcbNKZS8PAsHr4kj1sUOi5L5k</string>
+    <string name="google_app_id" translatable="false">1:138330937314:android:e8e012848befaf1e6dcbbb</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyAA_tq5lxZcbNKZS8PAsHr4kj1sUOi5L5k</string>
+    <string name="google_storage_bucket" translatable="false">offload-hpc.firebasestorage.app</string>
+    <string name="project_id" translatable="false">offload-hpc</string>
+    <string name="searching_broker">Searching for Broker...</string>
+    <style name="Theme.OffloadHPC" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+    </style>
+</resources>

@@ -6,4 +6,8 @@
         android:icon="@android:drawable/ic_menu_rotate"
         android:title="@string/action_reconnect"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_privacy"
+        android:title="Privacy Policy"
+        app:showAsAction="never" />
 </menu>

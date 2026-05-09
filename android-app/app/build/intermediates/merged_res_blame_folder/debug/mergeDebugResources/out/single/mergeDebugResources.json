@@ -1,0 +1,50 @@
+[
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/layout_activity_main.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/drawable_spinner_bg.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/drawable/spinner_bg.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/drawable_ic_launcher.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/drawable/ic_launcher.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/drawable_result_card_bg.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/drawable/result_card_bg.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/menu_main_menu.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/menu/main_menu.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/drawable_progress_bar_bg.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/drawable/progress_bar_bg.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/layout_fragment_matmul.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/layout/fragment_matmul.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/drawable_edittext_bg.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/drawable/edittext_bg.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/layout_fragment_kmeans.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/layout/fragment_kmeans.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/layout_fragment_imageproc.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/layout/fragment_imageproc.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/layout_fragment_hashcrack.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/layout/fragment_hashcrack.xml"
+    },
+    {
+        "merged": "com.bscs13b.offloadhpc.app-debug-41:/layout_activity_progress.xml.flat",
+        "source": "com.bscs13b.offloadhpc.app-main-43:/layout/activity_progress.xml"
+    }
+]
